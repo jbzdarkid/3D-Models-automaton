@@ -52,7 +52,7 @@ if __name__ == '__main__':
     print("Auto-computed crop boundary:", crop_boundary)
 
   white_images = []
-  model.set_background(False)
+  model.set_background('white')
   # Loops in this order to get the images in the right order.
   for y_rot in range(0, 360, 360//number_of_images):
     for x_rot in range(-15*vertical_rotations, 15*vertical_rotations+1, 15):
@@ -61,7 +61,7 @@ if __name__ == '__main__':
       white_images.append(grab().crop(crop_boundary))
 
   black_images = []
-  model.set_background(True)
+  model.set_background('black')
   for y_rot in range(0, 360, 360//number_of_images):
     for x_rot in range(-15*vertical_rotations, 15*vertical_rotations+1, 15):
       model.rotate(x_rot, y_rot)

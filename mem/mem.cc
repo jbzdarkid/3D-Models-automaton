@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "Usage: mem <trans|rot> [x y z]\n");
     exit(EXIT_FAILURE);
   }
-  DWORD pid;
+  DWORD pid = NULL;
   HMODULE module_list[1024];
   DWORD num_results;
   char name[64];
@@ -36,7 +36,8 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  HANDLE handle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
+  HANDLE handle = nullptr;
+  if (pid != NULL) handle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
   if (!handle) {
     fprintf(stderr, "Couldn't find HLMV. Is it open?\n");
     exit(EXIT_FAILURE);
@@ -50,7 +51,6 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  // Offsets from HLMV v1.22
   LPVOID offset;
   if (strcmp(argv[1], "rot") == 0) { // Absolute Rotation
     offset = (LPVOID)(base_addr + 0x23C510);

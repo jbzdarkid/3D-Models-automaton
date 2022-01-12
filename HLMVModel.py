@@ -22,8 +22,8 @@ class HLMVModel(object):
     and load the current rotation and translation from memory.
     If initial values are specified, rot and trans will be set instead.
     """
-    mem('nm', 1)
-    mem('color', '1.0', '1.0', '1.0', '1.0')
+    mem('nm', 0) # Disabled normal maps because I am getting black/purple
+    # mem('color', '1.0', '1.0', '1.0', '1.0')
     if initial['rotation']:
       self.rotation = initial['rotation']
       mem('rot', *self.rotation)
@@ -45,9 +45,12 @@ class HLMVModel(object):
 
   def set_background(self, value):
     """
-    Set the HLMV background to a given value.
+    Set the HLMV background color to a given value.
     """
-    mem('bg', value*1)
+    if value == 'white':
+      mem('color', 1.0, 1.0, 1.0, 1.0)
+    elif value == 'black':
+      mem('color', 0.0, 0.0, 0.0, 1.0)
 
   def rotate(self, x, y):
     """
