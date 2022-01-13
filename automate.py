@@ -22,8 +22,8 @@ if __name__ == '__main__':
   model = HLMVModel({
     'rotation': None,
     'translation': None,
-    'rotation_offset': None,
-    'vertical_offset': None
+    'rotation_offset': 7,
+    'vertical_offset': None,
     })
   ip = ImageProcessor(number_of_images, vertical_rotations)
 
