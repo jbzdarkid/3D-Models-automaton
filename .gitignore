@@ -1,6 +1,7 @@
 *.pyc
 *.pyo
 temp.jpg
+temp.txt
 venv
 mem.pdb
 mem/*

@@ -1,1 +1,2 @@
+*.exe !text
 * text eol=LF

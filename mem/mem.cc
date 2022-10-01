@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  // Offsets from HLMV v1.22
+  // Offsets as of 2022-10-01
   LPVOID offset;
   if (strcmp(argv[1], "rot") == 0) { // Absolute Rotation
     offset = (LPVOID)(base_addr + 0x23C4B0);

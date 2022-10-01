@@ -2,12 +2,7 @@
 Deals with image processing. This file is the bottleneck of the process, and
 is thus using numpy for efficiency. As a result, it is not very easy to read.
 """
-from datetime import datetime
-from hashlib import md5
-from os import path, remove
-
 from PIL.Image import ANTIALIAS, fromarray, new
-from PIL import ImageFile
 from numpy import array, dstack, inner, uint8
 
 class ImageProcessor(object):
@@ -32,16 +27,16 @@ class ImageProcessor(object):
     black_arr = array(black_image, dtype=int)
 
     diff = (white_arr - black_arr).sum(axis=2)
-
     horizontal = diff.any(axis=0).nonzero()[0]
     vertical = diff.any(axis=1).nonzero()[0]
 
-    # Slight padding because of aliasing.
+    # Slight padding because of aliasing on the edges.
+    # The bottom is indexed in from the array due to the 'Frame' animation
     return (
       horizontal[0]+10,  # Left
       vertical[0]+10,    # Top
       horizontal[-1]-10, # Right
-      vertical[-1]-10    # Bottom
+      vertical[-30]      # Bottom
    )
 
   def blend(self, white_image, black_image):
@@ -90,7 +85,7 @@ class ImageProcessor(object):
         ))
     self.images.append(blended_image)
 
-  def stitch_and_upload(self):
+  def stitch(self):
     """
     Crops the images to a shared size, then pastes them together.
     Prompts for login and uploads to the wiki when done.
@@ -141,44 +136,8 @@ class ImageProcessor(object):
         curr_offset,
         max_frame_size[1],
     ))
-    output_file = 'temp.jpg'
-    if path.exists(output_file):
-      remove(output_file)
-    # Ensure there is enough allocated space to save the image as progressive
-    ImageFile.MAXBLOCK = full_image.height * full_image.width * 8
-    full_image.convert('RGB').save(output_file, 'JPEG', quality=100, progressive=True, optimize=True)
-    file = open(output_file, 'rb')
-    title = input('Upload file name: ') + ' 3D.jpg'
-    hash = md5(title.replace(' ', '_').encode('utf-8')).hexdigest()
-    url = 'https://wiki.teamfortress.com/w/images/%s/%s/%s' % (hash[:1], hash[:2], title.replace(' ', '_'))
-    description = '''{{#switch: {{{1|}}}
-  | url = <nowiki>%s?%s</nowiki>
-  | map = \n%d,%d,%d,%d,%s
-  | height = %d
-  | startframe = 16
-  }}<noinclude>{{3D viewer}}[[Category:3D model images]]
-  {{Externally linked}}''' % (
-      url,
-      datetime.utcnow().timestamp(),
-      curr_offset,
-      max_frame_size[0],
-      max_frame_size[1],
-      self.x_rotations,
-      ','.join([str(o) for o in offset_map]),
-      self.target_dimension
-      )
 
-    # Late import in case the user forgot to submodule
-    from importlib import import_module
-    Wiki = import_module('TFWiki-scripts.wikitools.wiki').Wiki
-    Page = import_module('TFWiki-scripts.wikitools.page').Page
+    full_offset_map = "%d,%d,%d,%d," % (curr_offset, max_frame_size[0], max_frame_size[1], self.x_rotations)
+    full_offset_map += ",".join([str(o) for o in offset_map])
 
-    wiki = Wiki('https://wiki.teamfortress.com/w/api.php')
-    username = input('Wiki username: ')
-    while not wiki.login(username):
-      continue
-
-    page = Page(wiki, title)
-    r = page.upload(file, comment=description)
-    if r:
-      print('Failed for %s: %s' % (file, r))
+    return (full_image, full_offset_map)
