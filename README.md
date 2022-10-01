@@ -7,12 +7,9 @@ Requirements
 * Windows
 * TF2
 * HLMV (included as a part of TF2)
-* Python 2.6+
-* pip install numpy
-* pip install pillow
-* pip install poster (optional, available for Python 2.x only)
-* pip install pypiwin32
-* pip install wikitools (available for Python 2.x only)
+* Python 3
+* pip install -r requirements.txt
+* git submodule update --init
 
 If you have trouble with pip, install the Microsoft Visual C++ compiler.
 

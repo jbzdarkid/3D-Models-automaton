@@ -1,0 +1,3 @@
+[submodule "TFWiki-scripts"]
+	path = TFWiki-scripts
+	url = https://github.com/jbzdarkid/TFWiki-scripts

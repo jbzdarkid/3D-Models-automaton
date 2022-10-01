@@ -4,7 +4,6 @@ Rotates and captures pictures of a 3d model.
 Load up your model in HLMV, then run this script.
 """
 
-from __future__ import print_function, absolute_import
 from time import sleep
 
 from PIL.ImageGrab import grab

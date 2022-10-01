@@ -2,7 +2,6 @@
 Deals with image processing. This file is the bottleneck of the process, and
 is thus using numpy for efficiency. As a result, it is not very easy to read.
 """
-from __future__ import print_function, division
 from datetime import datetime
 from hashlib import md5
 from os import path, remove
@@ -115,8 +114,8 @@ class ImageProcessor(object):
     ImageFile.MAXBLOCK = full_image.height * full_image.width * 8
     full_image.convert('RGB').save(output_file, 'JPEG', quality=100, progressive=True, optimize=True)
     file = open(output_file, 'rb')
-    title = raw_input('Upload file name: ') + ' 3D.jpg'
-    hash = md5(title.replace(' ', '_')).hexdigest()
+    title = input('Upload file name: ') + ' 3D.jpg'
+    hash = md5(title.replace(' ', '_').encode('utf-8')).hexdigest()
     url = 'https://wiki.teamfortress.com/w/images/%s/%s/%s' % (hash[:1], hash[:2], title.replace(' ', '_'))
     description = '''{{#switch: {{{1|}}}
   | url = <nowiki>%s?%s</nowiki>
@@ -134,21 +133,18 @@ class ImageProcessor(object):
       ','.join([str(o) for o in offset_map]),
       self.target_dimension
       )
-    # Late imports because this *doesn't work* for python3. But I'd rather not fail that hard yet.
-    from wikitools import wiki
-    from wikitools.wikifile import File
-    from wikitools.page import Page
-    wiki = wiki.Wiki('https://wiki.teamfortress.com/w/api.php')
 
-    username = raw_input('Wiki username: ')
-    while not wiki.isLoggedIn():
-      wiki.login(username)
-    print('Uploading %s...' % title)
-    target = File(wiki, title)
-    if target.exists:
-      res = target.upload(file, ignorewarnings=True)
-      Page(wiki, 'File:'+title).edit(text=description, redirect=False)
-    else:
-      res = target.upload(file, comment=description)
-    if res['upload']['result'] == 'Warning':
-      print('Failed for %s: %s' % (file, res['upload']['warnings']))
+    # Late import in case the user forgot to submodule
+    from importlib import import_module
+    Wiki = import_module('TFWiki-scripts.wikitools.wiki').Wiki
+    Page = import_module('TFWiki-scripts.wikitools.page').Page
+
+    wiki = Wiki('https://wiki.teamfortress.com/w/api.php')
+    username = input('Wiki username: ')
+    while not wiki.login(username):
+      continue
+
+    page = Page(wiki, title)
+    r = page.upload(file, comment=description)
+    if r:
+      print('Failed for %s: %s' % (file, r))
