@@ -23,6 +23,27 @@ class ImageProcessor(object):
     self.y_rotations = y_rotations
     self.x_rotations = 2*x_rotations+1 # Total vertical rotations
 
+  def find_minimum_bounds(self, white_image, black_image):
+    """
+    Evaluates the difference between the first two images on each
+    background color, in order to find the edges of the image in HLMV.
+    """
+    white_arr = array(white_image, dtype=int)
+    black_arr = array(black_image, dtype=int)
+
+    diff = (white_arr - black_arr).sum(axis=2)
+
+    horizontal = diff.any(axis=0).nonzero()[0]
+    vertical = diff.any(axis=1).nonzero()[0]
+
+    # Slight padding because of aliasing.
+    return (
+      horizontal[0]+10,  # Left
+      vertical[0]+10,    # Top
+      horizontal[-1]-10, # Right
+      vertical[-1]-10    # Bottom
+   )
+
   def blend(self, white_image, black_image):
     """
     Blends the two images into an alpha image using percieved luminescence.
@@ -30,6 +51,14 @@ class ImageProcessor(object):
     Then, finds the closest-cropped lines that are all white.
     Uses numpy because traversing python arrays is very slow.
     """
+    # white_arr[:, :, 0] means:
+    # Treat the white image like a 3D array (x, y, RGB).
+    # Then, select all X coordinates, all Y coordinates, but only Z[0] (red).
+    # Similarly, white_arr[:, :, 1] is all of the green values.
+    # "inner" is the sum of the products of each pair of elements.
+    # So, we subtract the red values between white and black,
+    # multiply by .299, then add the results to green and blue.
+
     # This needs to be dtype=int to prevent an overflow when adding
     white_arr = array(white_image, dtype=int)
     black_arr = array(black_image, dtype=int)
@@ -39,13 +68,18 @@ class ImageProcessor(object):
         (white_arr[:, :, 2] + black_arr[:, :, 2])/2,
         255 - inner(white_arr - black_arr, [.299, .587, .114])
         ))
-    # Calculate crop lines
+    # Calculate crop lines by looking for all-white && all-black pixels, i.e. places where the luma is zero.
+    # np.any() will return 'True' for any rows which contain nonzero integers (because zero is Falsy).
+    # Then, we use nonzero() to get the only indices which are 'True', which are the rows with content.
+    # (nonzero returns a tuple for some reason, so we also have to [0] it.)
     horizontal = blended_arr[:, :, 3].any(axis=0).nonzero()[0]
     vertical = blended_arr[:, :, 3].any(axis=1).nonzero()[0]
+
     self.cropping['left'].append(horizontal[0])
     self.cropping['top'].append(vertical[0])
     self.cropping['right'].append(horizontal[-1])
     self.cropping['bottom'].append(vertical[-1])
+
     # This needs to be a uint8 to render correctly.
     blended_image = fromarray(blended_arr.astype(uint8), mode='RGBA')
     blended_image = blended_image.crop((
@@ -125,7 +159,7 @@ class ImageProcessor(object):
   }}<noinclude>{{3D viewer}}[[Category:3D model images]]
   {{Externally linked}}''' % (
       url,
-      datetime.strftime(datetime.utcnow(), '%Y%m%d%H%M%S'),
+      datetime.utcnow().timestamp(),
       curr_offset,
       max_frame_size[0],
       max_frame_size[1],
