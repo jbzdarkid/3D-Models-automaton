@@ -1,33 +1,34 @@
 from math import sin, cos, radians
 from subprocess import Popen, PIPE
+from struct import pack
 
 mem_offsets = {}
-def mem(command, *args):
+def mem(*args):
   """
   Communicate with the C memory management utility via subprocess.Popen
   Takes in a series of arguments as parameters for mem.exe
-  Returns parsed response, raises all exceptions
+  Returns parsed response, throws on any failure from mem.exe
   """
-  if command == 'sigscan':
-    params = ['mem.exe', 'sigscan', *args]
-  elif not args:
-    params = ['mem.exe', 'read', str(mem_offsets[command])]
-  else:
-    params = ['mem.exe', 'write', str(mem_offsets[command])]
-    for arg in args:
+  params = ['mem.exe']
+  for arg in args:
+    if isinstance(arg, int):
       params.append(bytes.hex(int.to_bytes(arg, byteorder='little')))
-    print(params)
+    elif isinstance(arg, float):
+      params.append(bytes.hex(pack('f', arg)))
+    elif isinstance(arg, str):
+      params.append(arg)
+    else:
+      raise ValueError('Unknown argument type: ' + type(arg))
+  print(params) # TODO remove debugging
 
   proc = Popen(params, stdout=PIPE, stderr=PIPE, universal_newlines=True)
   stdout, stderr = proc.communicate()
   if stderr:
     raise Exception(stderr)
-  if stdout:
-    if params[1] == 'read':
-      return [float(o) for o in stdout.split(' ')]
-    elif params[1] == 'sigscan':
-      print(stdout)
-      return [bytes.fromhex(line) for line in stdout.strip().split('\n')]
+  elif args[0] == 'sigscan':
+    return [bytes.fromhex(line) for line in stdout.strip().split('\n')]
+  elif args[0] == 'read':
+    return stdout.strip().split(' ')
 
 class HLMVModel(object):
   def __init__(self, initial):
@@ -37,46 +38,49 @@ class HLMVModel(object):
     If initial values are specified, rot and trans will be set instead.
     """
 
-    # TODO explain
-    sigscans = mem('sigscan', '81CA00010000803D')
+    # To avoid having to recompile mem.exe every time HLMV updates,
+    # I have switched the hard-coded offsets to instead use "signature scans".
+    # These are hex-encoded assembly bytes which preceed the usage of these
+    # particular HLMV variables.
+    # mem.exe will search for these bytes and return the assembly (also in hex)
+    # and we can then decode that assembly back into the offset of the variable.
+    sigscans = mem('sigscan',
+      '81CA00010000803D', # normals
+      '50F30F2CC0F30F1005', # color
+      '8B4328A80274', # rotation and position
+      '558BEC81ECE8010000', # background
+    )
 
-    mem_offsets['nm'] = int.from_bytes(sigscans[0][8:12], byteorder='little') - 0x410000
+    self.mem_offsets = {}
 
-    print(mem_offsets)
+    # Normal mapping
+    self.mem_offsets['nm'] = str(int.from_bytes(sigscans[0][8:12], byteorder='little') - 0x410000)
+    # Background color
+    self.mem_offsets['color'] = str(int.from_bytes(sigscans[1][9:13], byteorder='little') - 0x410000)
 
-    mem('nm', 1)
+    object_ref = int.from_bytes(sigscans[2][29:33], byteorder='little') - 0x410000
+    object_base_bytes = mem('read', '4', str(object_ref))[0]
+    object_base = int.from_bytes(bytes.fromhex(object_base_bytes), byteorder='little') - 0x410000
 
-    # int32_t normals = *(int32_t*)&data[index + 8];
-    exit()
+    # Absolute rotation
+    self.mem_offsets['rot'] = str(object_base + 0x08)
+    self.mem_offsets['trans'] = str(object_base + 0x14)
 
-    self.mem_offsets = {
-      'rot': 0x23C4B0, # Absolute Rotation
-      'trans': 0x23C4C0, # Absolute Translation
-      'color': 0x23F1B4, # Background color
-      'bg': 0x23F17C, # Enable Background
-      'nm': 0x23F12F, # Normal Maps
-    }
-    """
-  } else if (strcmp(argv[1], "spec") == 0) { // Specular
-    offset = (LPVOID)(base_addr + 0x23F131);
-  } else if (strcmp(argv[1], "ob") == 0) { // Overbrightening
-    offset = (LPVOID)(base_addr + 0x23F1DE);
-  } else if (strcmp(argv[1], "lrot") == 0) { // Light Rotation
-    offset = (LPVOID)(base_addr + 0x23F148);    }
-    """
+    # Enable background
+    self.mem_offsets['bg'] = str(int.from_bytes(sigscans[3][11:15], byteorder='little') - 0x410000)
 
-    mem('nm', 1)
-    mem('color', '1.0', '1.0', '1.0', '1.0')
+    mem('write', self.mem_offsets['nm'], 1)
+    mem('write', self.mem_offsets['color'], 1.0, 1.0, 1.0, 1.0)
     if initial['rotation']:
       self.rotation = initial['rotation']
-      mem('rot', *self.rotation)
+      mem('write', self.mem_offsets['rot'], *self.rotation)
     else: # Load from current state
-      self.rotation = mem('rot')
+      self.rotation = mem('read', '12', self.mem_offsets['rot'])
     if initial['translation']:
       self.translation = initial['translation']
-      mem('trans', *self.translation)
+      mem('write', self.mem_offsets['trans'], *self.translation)
     else:
-      self.translation = mem('trans')
+      self.translation = mem('read', '12', self.mem_offsets['trans']) # TODO this is not decoding from float!
     if initial['rotation_offset']:
       self.rot_offset = initial['rotation_offset']
     else:
@@ -90,7 +94,7 @@ class HLMVModel(object):
     """
     Set the HLMV background to a given value.
     """
-    mem('bg', value*1)
+    mem('write', self.mem_offsets['bg'], value*1)
 
   def rotate(self, x, y):
     """
@@ -101,7 +105,7 @@ class HLMVModel(object):
     Note that HLMV uses degrees while python uses radians.
     """
 
-    mem('rot',
+    mem('write', self.mem_offsets['rot'],
         self.rotation[0] + x,
         self.rotation[1] + y,
         self.rotation[2]
@@ -111,7 +115,7 @@ class HLMVModel(object):
     y = radians(y)
 
     xy_shift = sin(x)*sin(y)*self.vert_offset
-    mem('trans',
+    mem('write', self.mem_offsets['trans'],
         self.translation[0] + cos(y)*self.rot_offset + xy_shift,
         self.translation[1] + sin(y)*self.rot_offset + xy_shift,
         self.translation[2] - sin(x)*self.rot_offset

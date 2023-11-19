@@ -1,11 +1,3 @@
-/*
-#include <stdio.h> // fprintf
-#include <stdint.h> // uintptr_t
-#include <windows.h> // everything else
-#include <psapi.h> // Module processing. Has to be after windows.h
-#include <tlhelp32.h> // getting the PID
-*/
-
 #define _CRT_SECURE_NO_WARNINGS
 #include "Memory.h"
 #include <Windows.h>
