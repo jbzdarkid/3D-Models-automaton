@@ -41,12 +41,13 @@ if __name__ == '__main__':
     then compute the cropping boundary based on its resulting size
     """
     if GetWindowText(hwnd)[:7] == 'models\\':
-      SetForegroundWindow(hwnd)
-      ShowWindow(hwnd, SW_MAXIMIZE)
       global rect
-      rect = GetWindowRect(hwnd)
+      if not rect:
+        SetForegroundWindow(hwnd)
+        ShowWindow(hwnd, SW_MAXIMIZE)
+        rect = GetWindowRect(hwnd)
   rect = None
-  EnumWindows(enum_callback, [])
+  EnumWindows(enum_callback, None)
   if not rect:
     print("Couldn't find HLMV, is it open with a model loaded?")
     exit()
@@ -93,17 +94,23 @@ if __name__ == '__main__':
   full_image.convert('RGB').save(output_file, 'JPEG', quality=100, progressive=True, optimize=True)
   title = input('Upload file name: ') + ' 3D.jpg'
 
-  wiki = Wiki('https://wiki.teamfortress.com/w/api.php')
-  username = input('Wiki username: ')
-  for i in range(3):
-    if wiki.login(username):
-      break
+  try:
+    wiki = Wiki('https://wiki.teamfortress.com/w/api.php')
+    username = input('Wiki username: ')
+    for i in range(3):
+      if wiki.login(username):
+        break
 
-  page = Page(wiki, 'File:' + title)
-  with open(output_file, 'rb') as file:
-    r = page.upload(file)
-  if r:
-    print('Failed to upload %s: %s' % (file, r))
+    page = Page(wiki, 'File:' + title)
+    with open(output_file, 'rb') as file:
+      r = page.upload(file)
+    if r:
+      raise ValueError('Failed to upload %s: %s' % (file, r))
+  except:
+    import traceback
+    traceback.print_exc()
+
+    print('Upload failed, image & description saved to temp.jpeg & temp.txt')
 
   # Generate the description after uploading so that the timestamp is correct.
   hash = md5(title.replace(' ', '_').encode('utf-8')).hexdigest()

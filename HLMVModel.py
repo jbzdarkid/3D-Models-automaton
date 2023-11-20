@@ -2,7 +2,6 @@ from math import sin, cos, radians
 from subprocess import Popen, PIPE
 from struct import pack, unpack
 
-mem_offsets = {}
 def mem(*args):
   """
   Communicate with the C memory management utility via subprocess.Popen
@@ -23,7 +22,7 @@ def mem(*args):
   if stderr:
     raise Exception(stderr)
   elif args[0] == 'sigscan':
-    return [bytes.fromhex(line) for line in stdout.strip().split('\n')]
+    return [bytes.fromhex(line) for line in stdout.split(' ')]
   elif args[0] == 'read':
     return bytes.fromhex(stdout.strip())
 
@@ -42,42 +41,61 @@ class HLMVModel(object):
     # mem.exe will search for these bytes and return the assembly (also in hex)
     # and we can then decode that assembly back into the offset of the variable.
     sigscans = mem('sigscan',
-      '81CA00010000803D', # normals
       '50F30F2CC0F30F1005', # color
-      '8B4328A80274', # rotation and position
       '558BEC81ECE8010000', # background
+      '81CA00010000803D', # HLMV normals
+      '8B4328A80274', # HLMV rotation and position
+      '81CA0001000025FFFEFFFF', # HLMV++ normals
+      'EB2FA802742B', # HLMV++ rotation and position
     )
 
     self.mem_offsets = {}
 
-    # Normal mapping
-    self.mem_offsets['nm'] = str(unpack('<i', sigscans[0][8:12])[0] - 0x410000)
-    # Background color
-    self.mem_offsets['color'] = str(unpack('<i', sigscans[1][9:13])[0] - 0x410000)
+    if sigscans[2]: # HLMV
+      # Background color
+      self.mem_offsets['color'] = str(unpack('<i', sigscans[0][9:13])[0] - 0x410000)
 
-    object_ref = str(unpack('<i', sigscans[2][29:33])[0] - 0x410000)
-    object_base = unpack('<i', mem('read', '4', object_ref))[0] - 0x410000
+      # Enable background
+      self.mem_offsets['bg'] = str(unpack('<i', sigscans[1][11:15])[0] - 0x410000)
 
-    # Absolute rotation
-    self.mem_offsets['rot'] = str(object_base + 0x08)
-    self.mem_offsets['trans'] = str(object_base + 0x14)
+      # Normal mapping
+      self.mem_offsets['nm'] = str(unpack('<i', sigscans[2][8:12])[0] - 0x410000)
 
-    # Enable background
-    self.mem_offsets['bg'] = str(unpack('<i', sigscans[3][11:15])[0] - 0x410000)
+      # Absolute rotation and translation
+      object_ref = str(unpack('<i', sigscans[3][29:33])[0] - 0x410000)
+      object_base = unpack('<i', mem('read', '4', object_ref))[0] - 0x410000
+      self.mem_offsets['rot'] = str(object_base + 0x08)
+      self.mem_offsets['trans'] = str(object_base + 0x14)
 
-    # for k, v in self.mem_offsets.items():
-    #   print(k, hex(int(v)))
+    elif sigscans[4]: # HLMV++
+      # Background color
+      self.mem_offsets['color'] = str(unpack('<i', sigscans[0][9:13])[0] - 0x400000)
 
-    mem('write', self.mem_offsets['nm'], pack('b', 1))
-    mem('write', self.mem_offsets['color'], pack('ffff', 1.0, 1.0, 1.0, 1.0))
+      # Enable background
+      self.mem_offsets['bg'] = str(unpack('<i', sigscans[1][11:15])[0] - 0x400000)
+
+      # Normal mapping
+      self.mem_offsets['nm'] = str(unpack('<i', sigscans[4][13:17])[0] - 0x400000)
+
+      # Absolute rotation and translation
+      object_ref = str(unpack('<i', sigscans[5][29:33])[0] - 0x400000)
+      object_base = unpack('<i', mem('read', '4', object_ref))[0] - 0x400000
+      self.mem_offsets['rot'] = str(object_base + 0x08)
+      self.mem_offsets['trans'] = str(object_base + 0x14)
+
+    else:
+      raise ValueError('Sigscan mismatch for both HLMV and HLMV++')
+
+    mem('write', pack('b', 1), self.mem_offsets['nm'])
+    mem('write', pack('ffff', 1.0, 1.0, 1.0, 1.0), self.mem_offsets['color'])
     if initial['rotation']:
       self.rotation = initial['rotation']
-      mem('write', self.mem_offsets['rot'], pack('fff', self.rotation))
+      mem('write', pack('fff', self.rotation), self.mem_offsets['rot'])
     else: # Load from current state
       self.rotation = unpack('fff', mem('read', '12', self.mem_offsets['rot']))
     if initial['translation']:
       self.translation = initial['translation']
-      mem('write', self.mem_offsets['trans'], pack('fff', self.translation))
+      mem('write', pack('fff', self.translation), self.mem_offsets['trans'])
     else:
       self.translation = unpack('fff', mem('read', '12', self.mem_offsets['trans']))
     if initial['rotation_offset']:
@@ -93,7 +111,7 @@ class HLMVModel(object):
     """
     Set the HLMV background to a given value.
     """
-    mem('write', self.mem_offsets['bg'], pack('b', value*1))
+    mem('write', pack('b', value*1), self.mem_offsets['bg'])
 
   def rotate(self, x, y):
     """
@@ -104,18 +122,18 @@ class HLMVModel(object):
     Note that HLMV uses degrees while python uses radians.
     """
 
-    mem('write', self.mem_offsets['rot'], pack('fff',
+    mem('write', pack('fff',
       self.rotation[0] + x,
       self.rotation[1] + y,
       self.rotation[2]
-    ))
+    ), self.mem_offsets['rot'])
 
     x = radians(x)
     y = radians(y)
 
     xy_shift = sin(x)*sin(y)*self.vert_offset
-    mem('write', self.mem_offsets['trans'], pack('fff',
+    mem('write', pack('fff',
       self.translation[0] + cos(y)*self.rot_offset + xy_shift,
       self.translation[1] + sin(y)*self.rot_offset + xy_shift,
       self.translation[2] - sin(x)*self.rot_offset
-    ))
+    ), self.mem_offsets['trans'])
