@@ -3,7 +3,7 @@ Deals with image processing. This file is the bottleneck of the process, and
 is thus using numpy for efficiency. As a result, it is not very easy to read.
 """
 from PIL.Image import ANTIALIAS, fromarray, new
-from numpy import array, dstack, inner, uint8
+from numpy import array, dstack, inner, uint8, where
 
 class ImageProcessor(object):
   """
@@ -20,24 +20,23 @@ class ImageProcessor(object):
 
   def find_minimum_bounds(self, white_image, black_image):
     """
-    Evaluates the difference between the first two images on each
-    background color, in order to find the edges of the image in HLMV.
+    Finds the extrema of the black pixels of the first black image,
+    in order to find the limits of the HLMV viewport.
     """
-    white_arr = array(white_image, dtype=int)
     black_arr = array(black_image, dtype=int)
+    
+    h_midpoint = len(black_arr[:, 0, 0]) // 2
+    v_midpoint = len(black_arr[0, :, 0]) // 2
+    
+    horizontal = where(black_arr[h_midpoint, :, :].sum(axis=1) == 0)[0]
+    vertical   = where(black_arr[:, v_midpoint, :].sum(axis=1) == 0)[0]
 
-    diff = (white_arr - black_arr).sum(axis=2)
-    horizontal = diff.any(axis=0).nonzero()[0]
-    vertical = diff.any(axis=1).nonzero()[0]
-
-    # Slight padding because of aliasing on the edges.
-    # The bottom is indexed in from the array due to the 'Frame' animation
     return (
-      horizontal[0]+10,  # Left
-      vertical[0]+10,    # Top
-      horizontal[-1]-10, # Right
-      vertical[-30]      # Bottom
-   )
+      horizontal[0],  # Left
+      vertical[0],  # Top
+      horizontal[-1], # Right
+      vertical[-1], # Bottom
+    )
 
   def blend(self, white_image, black_image):
     """
