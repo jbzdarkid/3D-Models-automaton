@@ -1,7 +1,10 @@
 *.pyc
 *.pyo
+*.zip
 temp.jpg
 temp.txt
 venv
 mem.pdb
-mem/*
+mem/x64/
+mem/.vs/
+mem/mem.vcxproj.user
