@@ -42,7 +42,7 @@ if __name__ == '__main__':
     Focus and maximise HLMV
     then compute the cropping boundary based on its resulting size
     """
-    if GetWindowText(hwnd)[:7] == 'models\\':
+    if GetWindowText(hwnd).startswith('models\\'):
       global rect
       if not rect:
         SetForegroundWindow(hwnd)
