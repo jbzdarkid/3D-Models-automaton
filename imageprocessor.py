@@ -33,9 +33,9 @@ class ImageProcessor(object):
 
     return (
       horizontal[0],  # Left
-      vertical[0],  # Top
+      vertical[0],    # Top
       horizontal[-1], # Right
-      vertical[-1], # Bottom
+      vertical[-1],   # Bottom
     )
 
   def blend(self, white_image, black_image):

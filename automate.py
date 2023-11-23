@@ -26,6 +26,8 @@ if __name__ == '__main__':
   ctypes.windll.shcore.SetProcessDpiAwareness(2) # Set python itself to be DPI-aware so that we can compute boundaries correctly.
   number_of_images = 24 # Y rotations
   vertical_rotations = 1 # X rotations
+  bounds_override = (0, 0, 0, 0) # Left, Top, Right, Bottom
+
   # Initial parameters. Mostly, you won't need to set these.
   model = HLMVModel({
     'rotation': None,
@@ -72,7 +74,10 @@ if __name__ == '__main__':
       black_images.append(grab())
   model.rotate(0, 0) # Reset back to starting rotation for user
 
-  cropping = ip.find_minimum_bounds(white_images[0], black_images[0])
+  if sum(bounds_override) > 0:
+    cropping = bounds_override
+  else:
+    cropping = ip.find_minimum_bounds(white_images[0], black_images[0])
   print("Computed HLMV bounds (minimum cropping):", cropping)
 
   print('Blending...' + ' '*(len(white_images) - 12) + '|')

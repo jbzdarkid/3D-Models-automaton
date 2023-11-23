@@ -47,3 +47,12 @@ To disable this forever, run:
 
 Note that you may need to run Powershell as an administrator to execute these commands.
 
+### The 3D image is not removing the HLMV window borders
+The `imageprocessor.py` script will attempt to automatically detect the bounds of the HLMV viewport. This is not bulletproof and may fail.
+
+If you have having trouble, you can manually edit the `bounds_override` variable in `automate.py`. For example, on my 3840x2100 monitor, I use these bounds:
+`bounds_override = (2, 70, 3838, 1730)`
+You can open this file in any text editor and simply change the code. It may take some trial and error to find the correct values.
+
+If you would like to remove the override, simply set all the values to 0:
+`bounds_override = (0, 0, 0, 0)`
