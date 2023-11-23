@@ -5,6 +5,9 @@ temp.jpg
 temp.txt
 venv
 mem.pdb
+
 mem/x64/
+mem/Debug
+mem/Release
 mem/.vs/
 mem/mem.vcxproj.user
