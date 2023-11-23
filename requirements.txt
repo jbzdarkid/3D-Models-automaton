@@ -1,5 +1,5 @@
-﻿numpy==1.23.3
-Pillow==9.2.0
+﻿Pillow==9.2.0
+numpy==1.21.6
 pywin32==304
-
--r TFWiki-scripts/requirements.txt
+requests==2.31.0
+urllib3==1.26.6
