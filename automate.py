@@ -10,6 +10,7 @@ from hashlib import md5
 from importlib import import_module
 from os import path, remove
 from time import sleep
+from urllib.parse import quote
 
 from PIL import ImageFile
 from PIL.ImageGrab import grab
@@ -118,8 +119,9 @@ if __name__ == '__main__':
     print('Upload failed, image & description saved to temp.jpeg & temp.txt')
 
   # Generate the description after uploading so that the timestamp is correct.
-  hash = md5(title.replace(' ', '_').encode('utf-8')).hexdigest()
-  url = 'https://wiki.teamfortress.com/w/images/%s/%s/%s' % (hash[:1], hash[:2], title.replace(' ', '_'))
+  title = title.replace(' ', '_')
+  hash = md5(title.encode('utf-8')).hexdigest()
+  url = 'https://wiki.teamfortress.com/w/images/%s/%s/%s' % (hash[:1], hash[:2], quote(title))
   description = '''{{#switch: {{{1|}}}
 | url = <nowiki>%s?%s</nowiki>
 | map = \n%s
