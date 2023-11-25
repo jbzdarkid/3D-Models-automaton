@@ -1,2 +1,2 @@
-*.exe !text
 * text eol=LF
+*.exe binary
