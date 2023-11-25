@@ -26,6 +26,6 @@ def zip_repository():
   
 if __name__ == '__main__':
   z = zip_repository()
-  with open('3D-Models-automaton.zip', 'wb') as f:
+  with open('3D-Models-automation.zip', 'wb') as f:
     f.write(z)
   

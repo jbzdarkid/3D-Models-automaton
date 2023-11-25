@@ -7,12 +7,12 @@ This repository houses the scripts to create pseudo-3D images for the TF2 wiki. 
 * HLMV (included as a part of TF2)
     * (optionally) [HLMV++](https://github.com/ImguRandom/HLMVPlusPlus#installation)
 * [Python 3.7.9](https://www.python.org/downloads/release/python-379)
-* [This repository](https://github.com/jbzdarkid/3D-Models-automaton/releases/latest/download/3D-Models-automaton.zip)
+* [This repository](https://github.com/jbzdarkid/3D-Models-automaton/releases/latest/download/3D-Models-automation.zip)
 
 ## Installation steps
 1. Install Windows
 2. Install TF2
-3. Extract `3D-Models-automaton.zip` to an easily accessible folder.
+3. Extract `3D-Models-automation.zip` to an easily accessible folder.
 4. Follow the [HLMV setup instructions](https://wiki.teamfortress.com/wiki/Help:Model_Viewer)  
     * Be sure to set up the VMT replacement textures (linked in the Program limitations section) or you can find the files in this repository.
 5. Launch TF2 so that it maps your custom folders (for material overrides) and generates `gameinfo.txt`.
