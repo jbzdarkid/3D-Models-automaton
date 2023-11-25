@@ -55,7 +55,7 @@ if __name__ == '__main__':
     print("Couldn't find HLMV, is it open with a model loaded?")
     exit()
   else:
-    print("Found HLMV, boundaries at:", rect)
+    print("Found HLMV window boundaries:", rect)
 
   white_images = []
   model.set_background(False)
@@ -79,7 +79,7 @@ if __name__ == '__main__':
     cropping = bounds_override
   else:
     cropping = ip.find_minimum_bounds(white_images[0], black_images[0])
-  print("Computed HLMV bounds (minimum cropping):", cropping)
+  print("Computed HLMV viewport bounds (minimum cropping):", cropping)
 
   print('Blending...' + ' '*(len(white_images) - 12) + '|')
   for (white_image, black_image) in zip(white_images, black_images):
