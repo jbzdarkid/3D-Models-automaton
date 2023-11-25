@@ -10,6 +10,8 @@ public:
     Memory(const Memory& memory) = delete;
     Memory& operator=(const Memory& other) = delete;
 
+    uint64_t GetBaseAddress() { return _startOfModule; }
+
     using ScanFunc = std::function<void(std::vector<uint8_t>& data)>;
     void AddSigScan(const std::vector<uint8_t>& scanBytes, const ScanFunc& scanFunc);
     void ExecuteSigScans();

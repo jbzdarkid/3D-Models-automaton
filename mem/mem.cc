@@ -56,6 +56,8 @@ int main(int argc, char *argv[]) {
     Memory memory(L"hlmv"); // Prefix search, matches either hlmv.exe *or* hlmvplusplus.exe
 
     if (strcmp(argv[1], "sigscan") == 0) {
+        printf("%016llX ", memory.GetBaseAddress());
+
         for (int i = 2; i < argc; i++) {
             memory.AddSigScan(ParseHexString(argv[i]), [](std::vector<uint8_t>& data) {
                 // If we found a match, limit to 100 bytes. Otherwise we emit no data.

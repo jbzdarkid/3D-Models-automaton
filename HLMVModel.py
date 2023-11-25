@@ -51,35 +51,37 @@ class HLMVModel(object):
 
     self.mem_offsets = {}
 
+    base_addr = unpack('>Q', sigscans.pop(0))[0]
+
     if sigscans[2]: # HLMV
       # Background color
-      self.mem_offsets['color'] = str(unpack('<i', sigscans[0][9:13])[0] - 0x410000)
+      self.mem_offsets['color'] = str(unpack('<i', sigscans[0][9:13])[0] - base_addr)
 
       # Enable background
-      self.mem_offsets['bg'] = str(unpack('<i', sigscans[1][11:15])[0] - 0x410000)
+      self.mem_offsets['bg'] = str(unpack('<i', sigscans[1][11:15])[0] - base_addr)
 
       # Normal mapping
-      self.mem_offsets['nm'] = str(unpack('<i', sigscans[2][8:12])[0] - 0x410000)
+      self.mem_offsets['nm'] = str(unpack('<i', sigscans[2][8:12])[0] - base_addr)
 
       # Absolute rotation and translation
-      object_ref = str(unpack('<i', sigscans[3][29:33])[0] - 0x410000)
-      object_base = unpack('<i', mem('read', '4', object_ref))[0] - 0x410000
+      object_ref = str(unpack('<i', sigscans[3][29:33])[0] - base_addr)
+      object_base = unpack('<i', mem('read', '4', object_ref))[0] - base_addr
       self.mem_offsets['rot'] = str(object_base + 0x08)
       self.mem_offsets['trans'] = str(object_base + 0x14)
 
     elif sigscans[4]: # HLMV++
       # Background color
-      self.mem_offsets['color'] = str(unpack('<i', sigscans[0][9:13])[0] - 0x400000)
+      self.mem_offsets['color'] = str(unpack('<i', sigscans[0][9:13])[0] - base_addr)
 
       # Enable background
-      self.mem_offsets['bg'] = str(unpack('<i', sigscans[1][11:15])[0] - 0x400000)
+      self.mem_offsets['bg'] = str(unpack('<i', sigscans[1][11:15])[0] - base_addr)
 
       # Normal mapping
-      self.mem_offsets['nm'] = str(unpack('<i', sigscans[4][13:17])[0] - 0x400000)
+      self.mem_offsets['nm'] = str(unpack('<i', sigscans[4][13:17])[0] - base_addr)
 
       # Absolute rotation and translation
-      object_ref = str(unpack('<i', sigscans[5][29:33])[0] - 0x400000)
-      object_base = unpack('<i', mem('read', '4', object_ref))[0] - 0x400000
+      object_ref = str(unpack('<i', sigscans[5][29:33])[0] - base_addr)
+      object_base = unpack('<i', mem('read', '4', object_ref))[0] - base_addr
       self.mem_offsets['rot'] = str(object_base + 0x08)
       self.mem_offsets['trans'] = str(object_base + 0x14)
 

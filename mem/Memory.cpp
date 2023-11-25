@@ -31,7 +31,8 @@ Memory::Memory(const wchar_t* processName) {
             break;
         }
     }
-    assert(_handle, "Could not find target process");
+
+    assert(_handle, "Could not find HLMV/HLMV++, is it open?");
 
     DWORD unused;
     HMODULE modules[1] = {};
