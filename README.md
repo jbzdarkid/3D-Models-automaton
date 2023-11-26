@@ -53,7 +53,7 @@ Set-ExecutionPolicy Unrestricted -Force
 Note that you may need to run Powershell as an administrator to execute these commands.
 
 ### The 3D image is not removing the HLMV window borders
-The `imageprocessor.py` script will attempt to automatically detect the bounds of the HLMV viewport. This is not bulletproof and may fail.
+The `imageprocessor.py` script will attempt to automatically detect the bounds of the HLMV viewport. This is not bulletproof and may fail with an error like "IndexError: index 0 is out of bounds for axis 0 with size 0"
 
 If you have having trouble, you can manually edit the `bounds_override` variable in `automate.py`. For example, on my 3840x2100 monitor, I use these bounds:
 ```py
