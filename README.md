@@ -81,6 +81,6 @@ Note: You *must* use `\\` to represent a single `\`.
 Note: You *must* preserve the 4 leading spaces before the `if`.  
 
 ### Further questions
-If you are experiencing issues with the model itself (the way it looks or rotates), please take a look at the [notes on the TFW:3D Models page](https://wiki.teamfortress.com/wiki/Team_Fortress_Wiki:3D_Models#Workflow)
+If you are experiencing issues with the model itself (the way it looks or rotates), please take a look at the [notes on the TFW:3D Models page](https://wiki.teamfortress.com/wiki/Team_Fortress_Wiki:3D_Models#Workflow).
 
-If you are still having trouble, you can [leave me a message on the TF2 wiki](https://wiki.teamfortress.com/w/index.php?title=User_talk:Darkid&action=edit&section=new), [add me on steam](https://steamcommunity.com/id/jbzdarkid), [open a GitHub issue](https://github.com/jbzdarkid/3D-Models-automaton/issues/new), or send a message by carrier pidgeon (they know where I live).
+If you are still having trouble, you can [leave me a message on the TF2 wiki](https://wiki.teamfortress.com/w/index.php?title=User_talk:Darkid&action=edit&section=new), [add me on steam](https://steamcommunity.com/id/jbzdarkid), [open a GitHub issue](https://github.com/jbzdarkid/3D-Models-automaton/issues/new), or send a message by carrier pigeon (they know where I live).
