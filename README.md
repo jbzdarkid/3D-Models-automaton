@@ -17,10 +17,10 @@ This repository houses the scripts to create pseudo-3D images for the TF2 wiki. 
     * Be sure to set up the VMT replacement textures (linked in the Program limitations section) or you can find the files in this repository.
 5. Launch TF2 so that it maps your custom folders (for material overrides) and generates `gameinfo.txt`.
 6. Set up Python  
-    a. Install [Python 3.7.9](https://www.python.org/downloads/release/python-379)  
+    a. Install [Python 3.7.9](https://www.python.org/downloads/release/python-379/#:~:text=7083fed513c3c9a4ea655211df9ade27)  
     b. Open Powershell  
     c. `cd` to the extracted `3D-Models-automaton` folder  
-    d. Run `python -3 -m venv venv` (may take a few seconds)  
+    d. Run `python -m venv venv` (may take a few seconds)  
     e. Run `./venv/scripts/activate`  
     f. Run `pip install -r requirements.txt`  
 7. Run the automate script  
@@ -38,6 +38,10 @@ This repository houses the scripts to create pseudo-3D images for the TF2 wiki. 
 For further instructions, see [TFW:3D Models](https://wiki.teamfortress.com/wiki/Team_Fortress_Wiki:3D_Models#Workflow)
 
 ## Troubleshooting
+### Unable to create a virtual environment in (6d) because "the command [...] returned non-zero exit status 1."
+This usually indicates that python has been installed improperly. Please uninstall python (search for "Add or remove programs") and then reinstall it using the link in (6a).
+If possible, install python for all users, and if you still encounter this issue, try running Powershell again using an administrator.
+
 ### Unable to activate the virtual environment in (6e) because "the execution of scripts is disabled on this system"
 For your safety, Windows by default does not allow execution of non-Microsoft powershell scripts (such as python's virtual environment).
 
@@ -51,6 +55,9 @@ Set-ExecutionPolicy Unrestricted -Force
 ```
 
 Note that you may need to run Powershell as an administrator to execute these commands.
+
+### Unable to install requirements in (6f) because "No matching distribution found for numpy==1.21.6"
+Unfortunately, this codebase requires a specific, older version of python. Please uninstall python (search for "Add or remove programs") and then reinstall it using the link in (6a).
 
 ### The 3D image is not removing the HLMV window borders
 The `imageprocessor.py` script will attempt to automatically detect the bounds of the HLMV viewport. This is not bulletproof and may fail with an error like "IndexError: index 0 is out of bounds for axis 0 with size 0"
