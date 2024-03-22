@@ -122,17 +122,19 @@ if __name__ == '__main__':
   title = title.replace(' ', '_')
   hash = md5(title.encode('utf-8')).hexdigest()
   url = 'https://wiki.teamfortress.com/w/images/%s/%s/%s' % (hash[:1], hash[:2], quote(title))
+  category = '3D model images' if not title.startswith('User_') else 'User images'
   description = '''{{#switch: {{{1|}}}
 | url = <nowiki>%s?%s</nowiki>
 | map = \n%s
 | height = %d
 | startframe = 16
-}}<noinclude>{{3D viewer}}[[Category:3D model images]]
+}}<noinclude>{{3D viewer}}[[Category:%s]]
 {{Externally linked}}''' % (
     url,
     datetime.utcnow().timestamp(),
     full_offset_map,
-    ip.target_dimension
+    ip.target_dimension,
+    category
     )
 
   output_text = 'temp.txt'
