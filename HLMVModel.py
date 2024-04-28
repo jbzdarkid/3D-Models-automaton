@@ -40,50 +40,75 @@ class HLMVModel(object):
     # particular HLMV variables.
     # mem.exe will search for these bytes and return the assembly (also in hex)
     # and we can then decode that assembly back into the offset of the variable.
-    sigscans = mem('sigscan',
+    sigscans = mem('sigscan', # this closing paren is because vim is an idiot )
       '50F30F2CC0F30F1005', # color
       '558BEC81ECE8010000', # background
       '81CA00010000803D', # HLMV normals
       '8B4328A80274', # HLMV rotation and position
       '81CA0001000025FFFEFFFF', # HLMV++ normals
       'EB2FA802742B', # HLMV++ rotation and position
+
+      # HLMV++ x64
+      '0FBAEA080FBAF008', # normals
+      '55488DA8F8FDFFFF', # background
+      'F3440F2CC1F3440F2CC8', # color
+      'EB32A802742E', # position (and rotation)
     )
 
     self.mem_offsets = {}
 
     base_addr = unpack('>Q', sigscans.pop(0))[0]
 
-    if sigscans[2]: # HLMV
+    if sigscans[5]: # HLMV
       # Background color
-      self.mem_offsets['color'] = str(unpack('<i', sigscans[0][9:13])[0] - base_addr)
+      self.mem_offsets['color'] = str(unpack('<i', sigscans[1][9:13])[0] - base_addr)
 
       # Enable background
-      self.mem_offsets['bg'] = str(unpack('<i', sigscans[1][11:15])[0] - base_addr)
+      self.mem_offsets['bg'] = str(unpack('<i', sigscans[3][11:15])[0] - base_addr)
 
       # Normal mapping
-      self.mem_offsets['nm'] = str(unpack('<i', sigscans[2][8:12])[0] - base_addr)
+      self.mem_offsets['nm'] = str(unpack('<i', sigscans[5][8:12])[0] - base_addr)
 
       # Absolute rotation and translation
-      object_ref = str(unpack('<i', sigscans[3][29:33])[0] - base_addr)
+      object_ref = str(unpack('<i', sigscans[7][29:33])[0] - base_addr)
       object_base = unpack('<i', mem('read', '4', object_ref))[0] - base_addr
       self.mem_offsets['rot'] = str(object_base + 0x08)
       self.mem_offsets['trans'] = str(object_base + 0x14)
 
-    elif sigscans[4]: # HLMV++
+    elif sigscans[9]: # HLMV++
       # Background color
-      self.mem_offsets['color'] = str(unpack('<i', sigscans[0][9:13])[0] - base_addr)
+      self.mem_offsets['color'] = str(unpack('<i', sigscans[1][9:13])[0] - base_addr)
 
       # Enable background
-      self.mem_offsets['bg'] = str(unpack('<i', sigscans[1][11:15])[0] - base_addr)
+      self.mem_offsets['bg'] = str(unpack('<i', sigscans[3][11:15])[0] - base_addr)
 
       # Normal mapping
-      self.mem_offsets['nm'] = str(unpack('<i', sigscans[4][13:17])[0] - base_addr)
+      self.mem_offsets['nm'] = str(unpack('<i', sigscans[9][13:17])[0] - base_addr)
 
       # Absolute rotation and translation
-      object_ref = str(unpack('<i', sigscans[5][29:33])[0] - base_addr)
+      object_ref = str(unpack('<i', sigscans[11][29:33])[0] - base_addr)
       object_base = unpack('<i', mem('read', '4', object_ref))[0] - base_addr
       self.mem_offsets['rot'] = str(object_base + 0x08)
       self.mem_offsets['trans'] = str(object_base + 0x14)
+
+    elif sigscans[13]: # HLMV++ x64
+      # Normal mapping
+      normals = unpack('>Q', sigscans[12])[0] + unpack('<i', sigscans[13][10:14])[0] + 15
+      self.mem_offsets['nm'] = str(normals - base_addr)
+
+      # Enable background
+      background = unpack('>Q', sigscans[14])[0] + unpack('<i', sigscans[15][17:21])[0] + 22
+      self.mem_offsets['bg'] = str(background - base_addr)
+
+      # Background color
+      color = unpack('>Q', sigscans[16])[0] + unpack('<i', sigscans[17][14:18])[0] + 18
+      self.mem_offsets['color'] = str(color - base_addr)
+      
+      # Absolute rotation and translation
+      object_ref = unpack('>Q', sigscans[18])[0] + unpack('<i', sigscans[19][32:36])[0] + 36
+      object_base = unpack('<Q', mem('read', '8', str(object_ref - base_addr)))[0] - base_addr
+      self.mem_offsets['rot'] = str(object_base + 0x10)
+      self.mem_offsets['trans'] = str(object_base + 0x1C)
 
     else:
       raise ValueError('Sigscan mismatch for both HLMV and HLMV++')

@@ -2,6 +2,15 @@
 #include "Memory.h"
 #include <Windows.h>
 
+/* How to auto-attach (e.g. when mem is launched from the python scripts):
+0. Make sure you have the Just In Time Debugger installed & enabled in visual studio
+1. Open regedit
+2. Navigate to HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\mem.exe
+3. Set debugger = vsjitdebugger.exe (REG_SZ)
+4. Navigate to HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AeDebug
+5. Set Auto = 1 (REG_SZ)
+*/
+
 std::vector<uint8_t> ParseHexString(const char* str) {
     size_t length = strlen(str) / 2; // 1 byte per 2 hex characters
     std::vector<uint8_t> bytes(length);
@@ -59,10 +68,15 @@ int main(int argc, char *argv[]) {
         printf("%016llX ", memory.GetBaseAddress());
 
         for (int i = 2; i < argc; i++) {
-            memory.AddSigScan(ParseHexString(argv[i]), [](std::vector<uint8_t>& data) {
-                // If we found a match, limit to 100 bytes. Otherwise we emit no data.
-                if (data.size() > 0) data.resize(100);
-                PrintHexString(data);
+            memory.AddSigScan(ParseHexString(argv[i]), [](uint64_t addr, std::vector<uint8_t>& data) {
+                if (data.size() == 0) {
+                    printf("  "); // two empty objects
+                } else {
+                    // If we found a match, limit to 100 bytes.
+                    data.resize(100);
+                    printf("%016llX ", addr);
+                    PrintHexString(data);
+                }
             });
         }
 

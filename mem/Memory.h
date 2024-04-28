@@ -12,7 +12,7 @@ public:
 
     uint64_t GetBaseAddress() { return _startOfModule; }
 
-    using ScanFunc = std::function<void(std::vector<uint8_t>& data)>;
+    using ScanFunc = std::function<void(uint64_t addr, std::vector<uint8_t>& data)>;
     void AddSigScan(const std::vector<uint8_t>& scanBytes, const ScanFunc& scanFunc);
     void ExecuteSigScans();
 
@@ -41,6 +41,7 @@ private:
     struct SigScan {
         std::vector<uint8_t> scanBytes;
         ScanFunc scanFunc;
+        uint64_t addr = 0;
         bool found = false;
     };
     std::vector<SigScan> _sigScans;

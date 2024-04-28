@@ -71,6 +71,7 @@ void Memory::ExecuteSigScans() {
 
             // Make a copy of the buffer so that we can call the sigscan callbacks in input order.
             sigScan.scanBytes = std::vector<uint8_t>(buff.begin() + index, buff.end());
+            sigScan.addr = i + index;
             sigScan.found = true;
             found++;
         }
@@ -80,10 +81,10 @@ void Memory::ExecuteSigScans() {
 
     for (SigScan& sigScan : _sigScans) {
         if (sigScan.found) {
-            sigScan.scanFunc(sigScan.scanBytes);
+            sigScan.scanFunc(sigScan.addr, sigScan.scanBytes);
         } else {
             std::vector<uint8_t> empty;
-            sigScan.scanFunc(empty);
+            sigScan.scanFunc(0, empty);
         }
     }
 }
