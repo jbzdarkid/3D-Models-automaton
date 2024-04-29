@@ -22,20 +22,33 @@ class ImageProcessor(object):
     """
     Finds the extrema of the black pixels of the first black image,
     in order to find the limits of the HLMV viewport.
+    We do this by sampling 3 lines in each direction (horizontal / vertical)
     """
     black_arr = array(black_image, dtype=int)
     
-    h_midpoint = len(black_arr[:, 0, 0]) // 2
-    v_midpoint = len(black_arr[0, :, 0]) // 2
-    
-    horizontal = where(black_arr[h_midpoint, :, :].sum(axis=1) == 0)[0]
-    vertical   = where(black_arr[:, v_midpoint, :].sum(axis=1) == 0)[0]
+    horizontal_samples = [
+      len(black_arr[:, 0, 0]) * 1 // 4,
+      len(black_arr[:, 0, 0]) * 2 // 4,
+      len(black_arr[:, 0, 0]) * 3 // 4,
+    ]
+
+    # This returns a 2d array of [[x coordinates], [y coordinates]] representing the zeros (all black pixels) in the image along 3 horizontal lines
+    h_black_pixels = where(black_arr[horizontal_samples, :, :].sum(axis=2) == 0)
+
+    vertical_samples = [
+      len(black_arr[0, :, 0]) * 1 // 4,
+      len(black_arr[0, :, 0]) * 2 // 4,
+      len(black_arr[0, :, 0]) * 3 // 4,
+    ]
+
+    # This returns a 2d array of [[x coordinates], [y coordinates]] representing the zeros (all black pixels) in the image along 3 vertical lines
+    v_black_pixels = where(black_arr[:, vertical_samples, :].sum(axis=2) == 0)
 
     return (
-      horizontal[0],  # Left
-      vertical[0],    # Top
-      horizontal[-1], # Right
-      vertical[-1],   # Bottom
+      h_black_pixels[1].min(), # Left
+      v_black_pixels[0].min(), # Top
+      h_black_pixels[1].max(), # Right
+      v_black_pixels[0].max(), # Bottom
     )
 
   def blend(self, white_image, black_image):
