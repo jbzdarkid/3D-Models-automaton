@@ -5,7 +5,7 @@ This repository houses the scripts to create pseudo-3D images for the TF2 wiki. 
 * [Windows](https://www.microsoft.com/windows)
 * [TF2](https://store.steampowered.com/app/440/Team_Fortress_2)
 * HLMV (included as a part of TF2)
-    * (optionally) [HLMV++](https://github.com/ImguRandom/HLMVPlusPlus#installation)
+    * (optionally) [HLMV++](https://gamebanana.com/tools/download/15070)
 * [Python 3.7.9](https://www.python.org/downloads/release/python-379)
 * [This repository](https://github.com/jbzdarkid/3D-Models-automaton/releases/latest/download/3D-Models-automation.zip)
 
