@@ -59,6 +59,23 @@ Note that you may need to run Powershell as an administrator to execute these co
 ### Unable to install requirements in (6f) because "No matching distribution found for numpy==1.21.6"
 Unfortunately, this codebase requires a specific, older version of python. Please uninstall python (search for "Add or remove programs") and then reinstall it using the link in (6a).
 
+### The automate script fails during (7c) with an error like "Unable to determine HLMV/HLMV++ version, please recompute sigscans"
+Please reach out to me if this happens. This usually means that the model viewer has had significant engine changes, and will require additional work from me to get it working again. In the mean time, consider using an older copy of the model vewier (if possible)
+
+### The automate script fails during (7c) with an error like "Couldn't find HLMV, is it open with a model loaded?"
+The script relies on the window title to identify HLMV (or HLMV++).  
+If HLMV is open and you've loaded a model, the title should be something like `models\weapons\w_models\w_bonesaw.mdl`  
+If your models are hosted somewhere else (or, for some reason, your title is different), open `automate.py` in a text editor and change this line:
+```py
+    if 'models' in window_title or "Jed's Half-Life Model Viewer" in window_title:
+```
+to something which matches your window's title, e.g.:
+```py
+    if 'models' in window_title or "D:\\Modelling" in window_title:
+```
+Note: You *must* use `\\` to represent a single `\`.  
+Note: You *must* preserve the 4 leading spaces before the `if`.  
+
 ### The 3D image is not removing the HLMV window borders
 The `imageprocessor.py` script will attempt to automatically detect the bounds of the HLMV viewport. This is not bulletproof and may fail with an error like "IndexError: index 0 is out of bounds for axis 0 with size 0"
 
@@ -68,24 +85,10 @@ bounds_override = (2, 70, 3838, 1730)
 ```
 You can open this file in any text editor and simply change the code. It may take some trial and error to find the correct values.
 
-If you would like to remove the override, simply set all the values to 0:
+If you would like to remove the override and restore the automatic processing, simply set all the values to 0:
 ```py
 bounds_override = (0, 0, 0, 0)
 ```
-
-### The automate script fails during (7c) with an error like "Couldn't find HLMV, is it open with a model loaded?"
-The script relies on the window title to identify HLMV (or HLMV++).  
-If HLMV is open and you've loaded a model, the title should be something like `models\weapons\w_models\w_bonesaw.mdl`  
-If your models are hosted somewhere else (or, for some reason, your title is different), open `automate.py` in a text editor and change this line:
-```py
-     if GetWindowText(hwnd).startswith('models\\'):
-```
-to something which matches your window's title, e.g.:
-```py
-    if GetWindowText(hwnd).startswith('D:\\Modelling'):
-```
-Note: You *must* use `\\` to represent a single `\`.  
-Note: You *must* preserve the 4 leading spaces before the `if`.  
 
 ### Further questions
 If you are experiencing issues with the model itself (the way it looks or rotates), please take a look at the [notes on the TFW:3D Models page](https://wiki.teamfortress.com/wiki/Team_Fortress_Wiki:3D_Models#Workflow).

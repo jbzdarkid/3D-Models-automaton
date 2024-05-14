@@ -41,18 +41,27 @@ class HLMVModel(object):
     # mem.exe will search for these bytes and return the assembly (also in hex)
     # and we can then decode that assembly back into the offset of the variable.
     sigscans = mem('sigscan', # this closing paren is because vim is an idiot )
+      # Shared between HLMV and HLMV++ x86
       '50F30F2CC0F30F1005', # color
       '558BEC81ECE8010000', # background
-      '81CA00010000803D', # HLMV normals
-      '8B4328A80274', # HLMV rotation and position
-      '81CA0001000025FFFEFFFF', # HLMV++ normals
-      'EB2FA802742B', # HLMV++ rotation and position
+
+      # HLMV
+      '81CA00010000803D', # normals
+      '8B4328A80274', # position and rotation
+
+      # HLMV++ x86
+      '81CA0001000025FFFEFFFF', # normals
+      'EB2FA802742B', # position and rotation
 
       # HLMV++ x64
       '0FBAEA080FBAF008', # normals
       '55488DA8F8FDFFFF', # background
       'F3440F2CC1F3440F2CC8', # color
-      'EB32A802742E', # position (and rotation)
+      'EB32A802742E', # position and rotation
+
+      # Jed's HLMV v1.36
+      'D95C240C8BF1', # color
+      'D9542404D9EE', # position and rotation
     )
 
     self.mem_offsets = {}
@@ -110,10 +119,22 @@ class HLMVModel(object):
       self.mem_offsets['rot'] = str(object_base + 0x10)
       self.mem_offsets['trans'] = str(object_base + 0x1C)
 
-    else:
-      raise ValueError('Sigscan mismatch for both HLMV and HLMV++')
+    elif sigscans[20]: # Jed's HLMV
+      # Background color
+      self.mem_offsets['color'] = str(unpack('<i', sigscans[21][8:12])[0] - base_addr - 8)
 
-    mem('write', pack('b', 1), self.mem_offsets['nm'])
+      # Absolute rotation and translation
+      trans = unpack('<i', sigscans[23][8:12])[0] - base_addr
+      self.mem_offsets['trans'] = str(trans)
+      self.mem_offsets['rot'] = str(trans - 12)
+
+    else:
+      print('\n'.join((f'{i} {scan}' for i, scan in enumerate(sigscans))))
+      raise ValueError('Unable to determine HLMV/HLMV++ version, please recompute sigscans')
+
+    if 'nm' in self.mem_offsets:
+      mem('write', pack('b', 1), self.mem_offsets['nm'])
+
     mem('write', pack('ffff', 1.0, 1.0, 1.0, 1.0), self.mem_offsets['color'])
     if initial['rotation']:
       self.rotation = initial['rotation']
@@ -136,9 +157,15 @@ class HLMVModel(object):
 
   def set_background(self, value):
     """
-    Set the HLMV background to a given value.
+    Enable or disable the HLMV background. False -> 0 -> white, True -> 1 -> black.
     """
-    mem('write', pack('b', value*1), self.mem_offsets['bg'])
+    if 'bg' in self.mem_offsets:
+      mem('write', pack('b', value*1), self.mem_offsets['bg'])
+    elif 'color' in self.mem_offsets:
+      if value:
+        mem('write', pack('ffff', 0.0, 0.0, 0.0, 1.0), self.mem_offsets['color'])
+      else:
+        mem('write', pack('ffff', 1.0, 1.0, 1.0, 1.0), self.mem_offsets['color'])
 
   def rotate(self, x, y):
     """

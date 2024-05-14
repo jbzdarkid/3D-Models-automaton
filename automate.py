@@ -43,7 +43,8 @@ if __name__ == '__main__':
     Focus and maximise HLMV
     then compute the cropping boundary based on its resulting size
     """
-    if 'models' in GetWindowText(hwnd):
+    window_title = GetWindowText(hwnd)
+    if 'models' in window_title or "Jed's Half-Life Model Viewer" in window_title:
       global rect
       if not rect:
         SetForegroundWindow(hwnd)
