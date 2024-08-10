@@ -60,12 +60,12 @@ if __name__ == '__main__':
     folder = sys.argv[1]
   else:
     folder = input('Please provide the folder where the images were saved: ')
-  
+
   if not path.exists(folder):
     print(f'ERROR: Folder {folder} does not exist.')
     sys.exit(0)
 
-  images = [Image.open(folder / image[0]) for image in IMAGE_TITLES]
+  images = [Image.open(f'{folder}/{image[0]}') for image in IMAGE_TITLES]
 
   # Extracted and adapted from imageprocessor.py
   # This will get folded back in if we take screenshots internally.
@@ -91,8 +91,8 @@ if __name__ == '__main__':
     max(cropping['right']),
     max(cropping['bottom'])
   )
-  print("Computed HLMV viewport bounds (minimum cropping):", min_cropping)
-  
+  print('Computed HLMV viewport bounds (minimum cropping):', min_cropping)
+
   images = [image.crop(min_cropping) for image in images]
 
   cosmetic = input('Cosmetic file name: ')
@@ -118,7 +118,7 @@ if __name__ == '__main__':
     for i, image in enumerate(images):
       title = IMAGE_TITLES[i][1] % cosmetic
       image.convert('RGB').save(output_file, 'PNG', quality=100, progressive=True, optimize=True)
-      
+
       page = Page(wiki, title)
       with open(output_file, 'rb') as file:
         r = page.upload(file, description)
