@@ -93,28 +93,67 @@ FILENAME_TO_WIKI_PAGE = {
   "35.png":                                                       "Painted {name} 28394D{style}.png",
   "36.png":                                                       "Painted {name} C36C2D{style}.png",
   "37.png":                                                       "Painted {name} B88035{style}.png",
-  "38.png":                                                       "Painted {name} E6E6E6 BLU{style}.png",
-  "39.png":                                                       "Painted {name} D8BED8 BLU{style}.png",
-  "40.png":                                                       "Painted {name} C5AF91 BLU{style}.png",
-  "41.png":                                                       "Painted {name} 7E7E7E BLU{style}.png",
-  "42.png":                                                       "Painted {name} 141414 BLU{style}.png",
-  "43.png":                                                       "Painted {name} 2D2D24 BLU{style}.png",
-  "44.png":                                                       "Painted {name} 694D3A BLU{style}.png",
-  "45.png":                                                       "Painted {name} 7C6C57 BLU{style}.png",
-  "46.png":                                                       "Painted {name} A57545 BLU{style}.png",
-  "47.png":                                                       "Painted {name} CF7336 BLU{style}.png",
-  "48.png":                                                       "Painted {name} E7B53B BLU{style}.png",
-  "49.png":                                                       "Painted {name} F0E68C BLU{style}.png",
-  "50.png":                                                       "Painted {name} E9967A BLU{style}.png",
-  "51.png":                                                       "Painted {name} FF69B4 BLU{style}.png",
-  "52.png":                                                       "Painted {name} 7D4071 BLU{style}.png",
-  "53.png":                                                       "Painted {name} 51384A BLU{style}.png",
-  "54.png":                                                       "Painted {name} 2F4F4F BLU{style}.png",
-  "55.png":                                                       "Painted {name} 424F3B BLU{style}.png",
-  "56.png":                                                       "Painted {name} 808000 BLU{style}.png",
-  "57.png":                                                       "Painted {name} 729E42 BLU{style}.png",
-  "58.png":                                                       "Painted {name} 32CD32 BLU{style}.png",
-  "59.png":                                                       "Painted {name} BCDDB3 BLU{style}.png",
+  "38.png":                                                       "Painted {name} E6E6E6{style} BLU.png",
+  "39.png":                                                       "Painted {name} D8BED8{style} BLU.png",
+  "40.png":                                                       "Painted {name} C5AF91{style} BLU.png",
+  "41.png":                                                       "Painted {name} 7E7E7E{style} BLU.png",
+  "42.png":                                                       "Painted {name} 141414{style} BLU.png",
+  "43.png":                                                       "Painted {name} 2D2D24{style} BLU.png",
+  "44.png":                                                       "Painted {name} 694D3A{style} BLU.png",
+  "45.png":                                                       "Painted {name} 7C6C57{style} BLU.png",
+  "46.png":                                                       "Painted {name} A57545{style} BLU.png",
+  "47.png":                                                       "Painted {name} CF7336{style} BLU.png",
+  "48.png":                                                       "Painted {name} E7B53B{style} BLU.png",
+  "49.png":                                                       "Painted {name} F0E68C{style} BLU.png",
+  "50.png":                                                       "Painted {name} E9967A{style} BLU.png",
+  "51.png":                                                       "Painted {name} FF69B4{style} BLU.png",
+  "52.png":                                                       "Painted {name} 7D4071{style} BLU.png",
+  "53.png":                                                       "Painted {name} 51384A{style} BLU.png",
+  "54.png":                                                       "Painted {name} 2F4F4F{style} BLU.png",
+  "55.png":                                                       "Painted {name} 424F3B{style} BLU.png",
+  "56.png":                                                       "Painted {name} 808000{style} BLU.png",
+  "57.png":                                                       "Painted {name} 729E42{style} BLU.png",
+  "58.png":                                                       "Painted {name} 32CD32{style} BLU.png",
+  "59.png":                                                       "Painted {name} BCDDB3{style} BLU.png",
+}
+
+HEX_TO_PAINT_NAME = {
+  "E6E6E6": "An Extraordinary Abundance of Tinge",
+  "D8BED8": "Color No 216-190-216",
+  "C5AF91": "Peculiarly Drab Tincture",
+  "7E7E7E": "Aged Moustache Grey",
+  "141414": "A Distinctive Lack of Hue",
+  "2D2D24": "After Eight",
+  "694D3A": "Radigan Conagher Brown",
+  "7C6C57": "Ye Olde Rustic Colour",
+  "A57545": "Muskelmannbraun",
+  "CF7336": "Mann Co Orange",
+  "E7B53B": "Australium Gold",
+  "F0E68C": "The Color of a Gentlemann Business Pants",
+  "E9967A": "Dark Salmon Injustice",
+  "FF69B4": "Pink as Hell",
+  "7D4071": "A Deep Commitment to Purple",
+  "51384A": "Noble Hatter's Violet",
+  "2F4F4F": "A Color Similar to Slate",
+  "424F3B": "Zepheniah Greed",
+  "808000": "Drably Olive",
+  "729E42": "Indubitably Green",
+  "32CD32": "The Bitter Taste of Defeat and Lime",
+  "BCDDB3": "A Mann's Mint",
+  "A89A8C": "Waterlogged Lab Coat",
+  "839FA3": "Waterlogged Lab Coat",
+  "3B1F23": "Balaclavas Are Forever",
+  "18233D": "Balaclavas Are Forever",
+  "B8383B": "Team Spirit",
+  "5885A2": "Team Spirit",
+  "483838": "Operator's Overalls",
+  "384248": "Operator's Overalls",
+  "803020": "The Value of Teamwork",
+  "256D8D": "The Value of Teamwork",
+  "654740": "An Air of Debonair",
+  "28394D": "An Air of Debonair",
+  "C36C2D": "Cream Spirit",
+  "B88035": "Cream Spirit",
 }
 
 if __name__ == '__main__':
@@ -192,7 +231,10 @@ if __name__ == '__main__':
       if style:
         model_info_template += f'\n| style ={style}'
       if title.startswith('Painted'):
-        model_info_template += f'\n| paint = {title[15:21]}'
+        hex_id = title[15:21]
+        paint_name = HEX_TO_PAINT_NAME.get(hex_id, None)
+        if paint_name:
+          model_info_template += f'\n| paint = {paint_name}'
       description_with_template = description % model_info_template
 
       title = title.format(name=cosmetic, style=style)
@@ -203,8 +245,12 @@ if __name__ == '__main__':
       with output_file.open('rb') as file:
         print(file, description_with_template)
         r = page.upload(file, description_with_template)
-      if r:
-        print(f'WARNING: Failed to upload {page.title}: {r}')
+        if r:
+          print(f'WARNING: Failed to upload {page.title}: {r}')
+        else:
+          r = page.edit(description_with_template, 'Adding [[Template:Model info]]')
+          if r:
+            print(f'WARNING: Failed to edit {page.title}: {r}')
   except:
     import traceback
     print('Upload failed!')
