@@ -160,7 +160,7 @@ if __name__ == '__main__':
   if len(sys.argv) > 1:
     folder = sys.argv[1]
   else:
-    folder = input('Please provide the folder where the images were saved: ')
+    folder = input('Please provide the folder where the images were saved: ').strip('"')
   folder = Path(folder)
   print(f'Using folder: {folder}')
   if not folder.exists():
@@ -238,7 +238,7 @@ if __name__ == '__main__':
       description_with_template = description % model_info_template
 
       title = title.format(name=cosmetic, style=style)
-      page = Page(wiki, title)
+      page = Page(wiki, 'File:' + title)
 
       output_file = Path('temp.png')
       image.convert('RGBA').save(output_file, 'PNG', quality=100, progressive=True, optimize=True)
@@ -248,9 +248,7 @@ if __name__ == '__main__':
         if r:
           print(f'WARNING: Failed to upload {page.title}: {r}')
         else:
-          r = page.edit(description_with_template, 'Adding [[Template:Model info]]')
-          if r:
-            print(f'WARNING: Failed to edit {page.title}: {r}')
+          page.edit(description_with_template, 'Adding [[Template:Model info]] alongside new image')
   except:
     import traceback
     print('Upload failed!')
