@@ -27,7 +27,7 @@ def mem(*args):
     return bytes.fromhex(stdout.strip())
 
 class HLMVModel(object):
-  def __init__(self, initial):
+  def __init__(self, initial = None):
     """
     Iniitial model setup. Enable normal maps, set the background to white,
     and load the current rotation and translation from memory.
@@ -83,6 +83,7 @@ class HLMVModel(object):
       object_base = unpack('<i', mem('read', '4', object_ref))[0] - base_addr
       self.mem_offsets['rot'] = str(object_base + 0x08)
       self.mem_offsets['trans'] = str(object_base + 0x14)
+      self.mem_offsets['skin'] = str(object_base + 0x24)
 
     elif sigscans[9]: # HLMV++
       # Background color
@@ -112,12 +113,13 @@ class HLMVModel(object):
       # Background color
       color = unpack('>Q', sigscans[16])[0] + unpack('<i', sigscans[17][14:18])[0] + 18
       self.mem_offsets['color'] = str(color - base_addr)
-      
-      # Absolute rotation and translation
+
+      # Object rotation, translation, and skin
       object_ref = unpack('>Q', sigscans[18])[0] + unpack('<i', sigscans[19][32:36])[0] + 36
       object_base = unpack('<Q', mem('read', '8', str(object_ref - base_addr)))[0] - base_addr
       self.mem_offsets['rot'] = str(object_base + 0x10)
       self.mem_offsets['trans'] = str(object_base + 0x1C)
+      self.mem_offsets['skin'] = str(object_base + 0x2C)
 
     elif sigscans[20]: # Jed's HLMV
       # Background color
@@ -135,22 +137,25 @@ class HLMVModel(object):
     if 'nm' in self.mem_offsets:
       mem('write', pack('b', 1), self.mem_offsets['nm'])
 
+    if not initial:
+      initial = {}
+
     mem('write', pack('ffff', 1.0, 1.0, 1.0, 1.0), self.mem_offsets['color'])
-    if initial['rotation']:
+    if initial.get('rotation', None):
       self.rotation = initial['rotation']
       mem('write', pack('fff', self.rotation), self.mem_offsets['rot'])
     else: # Load from current state
       self.rotation = unpack('fff', mem('read', '12', self.mem_offsets['rot']))
-    if initial['translation']:
+    if initial.get('translation', None):
       self.translation = initial['translation']
       mem('write', pack('fff', self.translation), self.mem_offsets['trans'])
     else:
       self.translation = unpack('fff', mem('read', '12', self.mem_offsets['trans']))
-    if initial['rotation_offset']:
+    if initial.get('rotation_offset', None):
       self.rot_offset = initial['rotation_offset']
     else:
       self.rot_offset = 0
-    if initial['vertical_offset']:
+    if initial.get('vertical_offset', None):
       self.vert_offset = initial['vertical_offset']
     else:
       self.vert_offset = 0
@@ -166,6 +171,13 @@ class HLMVModel(object):
         mem('write', pack('ffff', 0.0, 0.0, 0.0, 1.0), self.mem_offsets['color'])
       else:
         mem('write', pack('ffff', 1.0, 1.0, 1.0, 1.0), self.mem_offsets['color'])
+
+  def set_skin(self, value):
+    """
+    Change a model's skin (e.g. from RED to BLU).
+    I have no idea what this does if the model has only one skin.
+    """
+    mem('write', pack('<i', value), self.mem_offsets['skin'])
 
   def rotate(self, x, y):
     """
