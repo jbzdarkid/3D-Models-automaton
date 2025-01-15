@@ -2,6 +2,7 @@
 *.pyo
 *.zip
 temp.jpg
+temp.png
 temp.txt
 venv
 mem.pdb

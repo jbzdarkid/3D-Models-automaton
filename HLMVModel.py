@@ -68,7 +68,9 @@ class HLMVModel(object):
 
     base_addr = unpack('>Q', sigscans.pop(0))[0]
 
-    if sigscans[5]: # HLMV
+    if sigscans[5]:
+      print('Detected HLMV')
+
       # Background color
       self.mem_offsets['color'] = str(unpack('<i', sigscans[1][9:13])[0] - base_addr)
 
@@ -85,7 +87,9 @@ class HLMVModel(object):
       self.mem_offsets['trans'] = str(object_base + 0x14)
       self.mem_offsets['skin'] = str(object_base + 0x24)
 
-    elif sigscans[9]: # HLMV++
+    elif sigscans[9]:
+      print('Detected HLMV++ x86')
+
       # Background color
       self.mem_offsets['color'] = str(unpack('<i', sigscans[1][9:13])[0] - base_addr)
 
@@ -101,7 +105,9 @@ class HLMVModel(object):
       self.mem_offsets['rot'] = str(object_base + 0x08)
       self.mem_offsets['trans'] = str(object_base + 0x14)
 
-    elif sigscans[13]: # HLMV++ x64
+    elif sigscans[13]:
+      print('Detected HLMV++ x64')
+
       # Normal mapping
       normals = unpack('>Q', sigscans[12])[0] + unpack('<i', sigscans[13][10:14])[0] + 15
       self.mem_offsets['nm'] = str(normals - base_addr)
@@ -121,7 +127,9 @@ class HLMVModel(object):
       self.mem_offsets['trans'] = str(object_base + 0x1C)
       self.mem_offsets['skin'] = str(object_base + 0x2C)
 
-    elif sigscans[20]: # Jed's HLMV
+    elif sigscans[20]:
+      print('Detected Jed\'s HLMV')
+
       # Background color
       self.mem_offsets['color'] = str(unpack('<i', sigscans[21][8:12])[0] - base_addr - 8)
 

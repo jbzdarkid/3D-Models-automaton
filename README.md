@@ -59,8 +59,17 @@ Note that you may need to run Powershell as an administrator to execute these co
 ### Unable to install requirements in (6f) because "No matching distribution found for numpy==1.21.6"
 Unfortunately, this codebase requires a specific, older version of python. Please uninstall python (search for "Add or remove programs") and then reinstall it using the link in (6a).
 
+Alternately, recreate your venv using the correct python by running
+```bash
+py -V:3.7 -m venv venv
+```
+
 ### The automate script fails during (7c) with an error like "Unable to determine HLMV/HLMV++ version, please recompute sigscans"
 Please reach out to me if this happens. This usually means that the model viewer has had significant engine changes, and will require additional work from me to get it working again. In the mean time, consider using an older copy of the model vewier (if possible)
+
+### The automate script fails during (7c) with an error like "Traceback (most recent call last) ... MemoryError"
+This usually means you've installed the 32 bit version of python. Please uninstall python (search for "Add or remove programs") and then reinstall it using the link in (6a).
+It is also possible that your computer does not have enough RAM to retain the images you are capturing. In this case, I would recommend lowering your screen resolution and trying again.
 
 ### The automate script fails during (7c) with an error like "Couldn't find HLMV, is it open with a model loaded?"
 The script relies on the window title to identify HLMV (or HLMV++).  
