@@ -15,7 +15,6 @@ Wiki = import_module('TFWiki-scripts.wikitools.wiki').Wiki
 Page = import_module('TFWiki-scripts.wikitools.page').Page
 
 FILENAME_TO_WIKI_PAGE = {
-#  "0 - Unpainted RED.tga":                                        "Painted {name} UNPAINTED{style}.png",
   "0 - Unpainted RED.tga":                                        "RED {name}{style}.png",
   "1 - Unpainted BLU.tga":                                        "BLU {name}{style}.png",
   "2 - (E6E6E6) - An Extraordinary Abundance of Tinge.tga":       "Painted {name} E6E6E6{style}.png",
@@ -54,7 +53,6 @@ FILENAME_TO_WIKI_PAGE = {
   "35 - (28394D) - An Air of Debonair - BLU.tga":                 "Painted {name} 28394D{style}.png",
   "36 - (C36C2D) - Cream Spirit - RED.tga":                       "Painted {name} C36C2D{style}.png",
   "37 - (B88035) - Cream Spirit - BLU.tga":                       "Painted {name} B88035{style}.png",
-#  "0.png":                                                        "Painted {name} UNPAINTED{style}.png",
   "0.png":                                                        "RED {name}{style}.png",
   "1.png":                                                        "BLU {name}{style}.png",
   "2.png":                                                        "Painted {name} E6E6E6{style}.png",
@@ -167,6 +165,16 @@ if __name__ == '__main__':
     print(f'ERROR: Folder {folder} does not exist.')
     sys.exit(0)
 
+  team_color = input('Is the cosmetic team colored [Y/n]?')
+  if team_color.lower() not in ['y', 'yes', 'n', 'no']:
+    print(f'ERROR: Could not parse response: "{team_color}"')
+    sys.exit(0)
+
+  # When the cosmetic does not have team colors, we use a slightly different naming style for the default image.
+  if team_color.lower() in ['n', 'no']:
+    FILENAME_TO_WIKI_PAGE["0 - Unpainted RED.tga"] = "Painted {name} UNPAINTED{style}.png"
+    FILENAME_TO_WIKI_PAGE["0.png"] = "Painted {name} UNPAINTED{style}.png"
+
   images = {}
 
   # First, scan for matching files in the target directory
@@ -213,7 +221,6 @@ if __name__ == '__main__':
 }}
 == Licensing ==
 {{ScreenshotTF2}}
-[[Category:Painted item images]]
 '''
 
   # Ensure there is enough allocated space to save images as progressive
@@ -235,7 +242,13 @@ if __name__ == '__main__':
         paint_name = HEX_TO_PAINT_NAME.get(hex_id, None)
         if paint_name:
           model_info_template += f'\n| paint = {paint_name}'
+
       description_with_template = description % model_info_template
+
+      if title.startswith('Painted'):
+        description_with_template += '[[Category:Painted item images]]\n'
+      else:
+        description_with_template += '[[Category:Item skin images]]\n'
 
       title = title.format(name=cosmetic, style=style)
       page = Page(wiki, 'File:' + title)
