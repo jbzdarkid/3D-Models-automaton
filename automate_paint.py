@@ -15,8 +15,6 @@ Wiki = import_module('TFWiki-scripts.wikitools.wiki').Wiki
 Page = import_module('TFWiki-scripts.wikitools.page').Page
 
 FILENAME_TO_WIKI_PAGE = {
-  "0 - Unpainted RED.tga":                                        "RED {name}{style}.png",
-  "1 - Unpainted BLU.tga":                                        "BLU {name}{style}.png",
   "2 - (E6E6E6) - An Extraordinary Abundance of Tinge.tga":       "Painted {name} E6E6E6{style}.png",
   "3 - (D8BED8) - Color No 216-190-216.tga":                      "Painted {name} D8BED8{style}.png",
   "4 - (C5AF91) - Peculiarly Drab Tincture.tga":                  "Painted {name} C5AF91{style}.png",
@@ -53,8 +51,6 @@ FILENAME_TO_WIKI_PAGE = {
   "35 - (28394D) - An Air of Debonair - BLU.tga":                 "Painted {name} 28394D{style}.png",
   "36 - (C36C2D) - Cream Spirit - RED.tga":                       "Painted {name} C36C2D{style}.png",
   "37 - (B88035) - Cream Spirit - BLU.tga":                       "Painted {name} B88035{style}.png",
-  "0.png":                                                        "RED {name}{style}.png",
-  "1.png":                                                        "BLU {name}{style}.png",
   "2.png":                                                        "Painted {name} E6E6E6{style}.png",
   "3.png":                                                        "Painted {name} D8BED8{style}.png",
   "4.png":                                                        "Painted {name} C5AF91{style}.png",
@@ -165,15 +161,20 @@ if __name__ == '__main__':
     print(f'ERROR: Folder {folder} does not exist.')
     sys.exit(0)
 
-  team_color = input('Is the cosmetic team colored [Y/n]?')
-  if team_color.lower() not in ['y', 'yes', 'n', 'no']:
+  # We use slightly different naming styles for unpainted images (i.e. default images) with and without team colors.
+  team_color = input('Is the cosmetic team colored [y/n]?')
+  if team_color.lower() in ['y', 'yes']:
+    FILENAME_TO_WIKI_PAGE["0 - Unpainted RED.tga"] = "RED {name}{style}.png"
+    FILENAME_TO_WIKI_PAGE["1 - Unpainted BLU.tga"] = "BLU {name}{style}.png"
+    FILENAME_TO_WIKI_PAGE["0.png"] = "RED {name}{style}.png"
+    FILENAME_TO_WIKI_PAGE["1.png"] = "BLU {name}{style}.png"
+  elif team_color.lower() in ['n', 'no']:
+    FILENAME_TO_WIKI_PAGE["0 - Unpainted RED.tga"] = "Painted {name} UNPAINTED{style}.png"
+    FILENAME_TO_WIKI_PAGE["0.png"] = "Painted {name} UNPAINTED{style}.png"
+  else:
     print(f'ERROR: Could not parse response: "{team_color}"')
     sys.exit(0)
 
-  # When the cosmetic does not have team colors, we use a slightly different naming style for the default image.
-  if team_color.lower() in ['n', 'no']:
-    FILENAME_TO_WIKI_PAGE["0 - Unpainted RED.tga"] = "Painted {name} UNPAINTED{style}.png"
-    FILENAME_TO_WIKI_PAGE["0.png"] = "Painted {name} UNPAINTED{style}.png"
 
   images = {}
 
