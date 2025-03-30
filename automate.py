@@ -102,8 +102,9 @@ if __name__ == '__main__':
   title = input('Upload file name: ') + ' 3D.jpg'
 
   try:
-    wiki = Wiki('https://wiki.teamfortress.com/w/api.php')
     username = input('Wiki username: ')
+    user_agent = input('Custom user agent: ').strip()
+    wiki = Wiki('https://wiki.teamfortress.com/w/api.php', user_agent)
     for i in range(3):
       if wiki.login(username):
         break

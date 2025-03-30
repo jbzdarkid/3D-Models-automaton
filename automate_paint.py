@@ -250,8 +250,9 @@ if __name__ == '__main__':
   ImageFile.MAXBLOCK = image.height * image.width * 8
 
   try:
-    wiki = Wiki('https://wiki.teamfortress.com/w/api.php')
     username = input('Wiki username: ')
+    user_agent = input('Custom user agent: ').strip()
+    wiki = Wiki('https://wiki.teamfortress.com/w/api.php', user_agent)
     for i in range(3):
       if wiki.login(username):
         break
