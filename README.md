@@ -64,6 +64,10 @@ Alternately, recreate your venv using the correct python by running
 py -V:3.7 -m venv venv
 ```
 
+### The automate script fails during (7c) with an error like "ModuleNotFoundError: No module named 'PIL'"
+I was not able to reproduce this myself, but this likely indicates that you're not running python from within the virtual environment.
+Please ensure that you always run `./venv/Scripts/activate` before running `py automate.py`, *or* run the script directly from the venv's copy of python with `./venv/Scripts/python.exe automate.py`.
+
 ### The automate script fails during (7c) with an error like "Unable to determine HLMV/HLMV++ version, please recompute sigscans"
 Please reach out to me if this happens. This usually means that the model viewer has had significant engine changes, and will require additional work from me to get it working again. In the mean time, consider using an older copy of the model vewier (if possible)
 
