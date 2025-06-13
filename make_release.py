@@ -9,6 +9,7 @@ def zip_repository():
   buffer = BytesIO()
   with zipfile.ZipFile(buffer, 'a', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as z:
     z.write('automate.py')
+    z.write('automate_paint.py')
     z.write('HLMVModel.py')
     z.write('imageprocessor.py')
     z.write('mem.exe')
