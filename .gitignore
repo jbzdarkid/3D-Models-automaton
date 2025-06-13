@@ -1,8 +1,8 @@
 *.pyc
 *.pyo
 *.zip
-temp.jpg
-temp.png
+*.jpg
+*.png
 temp.txt
 venv
 mem.pdb

@@ -13,6 +13,7 @@ from os import path, remove
 from time import sleep
 from urllib.parse import quote
 
+from PIL import Image
 from PIL import ImageFile
 from PIL.ImageGrab import grab
 from win32con import SW_MAXIMIZE
@@ -24,7 +25,7 @@ from HLMVModel import HLMVModel
 Wiki = import_module('TFWiki-scripts.wikitools.wiki').Wiki
 Page = import_module('TFWiki-scripts.wikitools.page').Page
 
-VERSION = '3.3'
+VERSION = '3.4'
 def check_for_updates():
   try:
     r = requests.get('https://api.github.com/repos/jbzdarkid/3D-Models-automaton/releases/latest', timeout=10)
@@ -67,14 +68,14 @@ if __name__ == '__main__':
       if not rect:
         SetForegroundWindow(hwnd)
         ShowWindow(hwnd, SW_MAXIMIZE)
-        rect = GetWindowRect(hwnd)
+        rect = GetWindowRect(hwnd) # Not actually used, just signals that we've found the HWND
   rect = None
   EnumWindows(enum_callback, None)
   if not rect:
-    print("Couldn't find HLMV, is it open with a model loaded?")
+    print('Couldn\'t find HLMV, is it open with a model loaded?')
     exit()
   else:
-    print("Found HLMV window boundaries:", rect)
+    print('Found HLMV window boundaries:', rect)
 
   white_images = []
   model.set_background(False)
@@ -94,11 +95,13 @@ if __name__ == '__main__':
       black_images.append(grab())
   model.rotate(0, 0) # Reset back to starting rotation for user
 
-  if sum(bounds_override) > 0:
+  if sum(bounds_override) != 0:
     cropping = bounds_override
   else:
+    white_images[0].save('white0.png')
+    black_images[0].save('black0.png')
     cropping = ip.find_minimum_bounds(white_images[0], black_images[0])
-  print("Computed HLMV viewport bounds (minimum cropping):", cropping)
+  print('Computed HLMV viewport bounds (minimum cropping):', cropping)
 
   print('Blending...' + ' '*(len(white_images) - 12) + '|')
   for (white_image, black_image) in zip(white_images, black_images):

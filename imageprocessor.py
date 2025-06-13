@@ -24,6 +24,7 @@ class ImageProcessor(object):
     in order to find the limits of the HLMV viewport.
     We do this by sampling 3 lines in each direction (horizontal / vertical)
     """
+    white_arr = array(white_image, dtype=int)
     black_arr = array(black_image, dtype=int)
     
     horizontal_samples = [
@@ -32,8 +33,12 @@ class ImageProcessor(object):
       len(black_arr[:, 0, 0]) * 3 // 4,
     ]
 
-    # This returns a 2d array of [[x coordinates], [y coordinates]] representing the zeros (all black pixels) in the image along 3 horizontal lines
-    h_black_pixels = where(black_arr[horizontal_samples, :, :].sum(axis=2) == 0)
+    # This returns a 2d array of [[x coordinates], [y coordinates]] which are all black on the black_image and all white on the white_image
+    h_empty_pixels = where(
+      (white_arr[horizontal_samples, :, :] == [255, 255, 255])
+      &
+      (black_arr[horizontal_samples, :, :] == [0, 0, 0])
+    )
 
     vertical_samples = [
       len(black_arr[0, :, 0]) * 1 // 4,
@@ -41,14 +46,18 @@ class ImageProcessor(object):
       len(black_arr[0, :, 0]) * 3 // 4,
     ]
 
-    # This returns a 2d array of [[x coordinates], [y coordinates]] representing the zeros (all black pixels) in the image along 3 vertical lines
-    v_black_pixels = where(black_arr[:, vertical_samples, :].sum(axis=2) == 0)
-
+    # This returns a 2d array of [[x coordinates], [y coordinates]] which are all black on the black_image and all white on the white_image
+    v_empty_pixels = where(
+      (white_arr[:, vertical_samples, :].sum(axis=2) == 255*3)
+      &
+      (black_arr[:, vertical_samples, :].sum(axis=2) == 0)
+    )
+    
     return (
-      h_black_pixels[1].min(), # Left
-      v_black_pixels[0].min(), # Top
-      h_black_pixels[1].max(), # Right
-      v_black_pixels[0].max(), # Bottom
+      h_empty_pixels[1].min(), # Left
+      v_empty_pixels[0].min(), # Top
+      h_empty_pixels[1].max(), # Right
+      v_empty_pixels[0].max(), # Bottom
     )
 
   def blend(self, white_image, black_image):
