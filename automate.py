@@ -5,6 +5,7 @@ Load up your model in HLMV, then run this script.
 """
 
 import ctypes
+import requests
 from datetime import datetime
 from hashlib import md5
 from importlib import import_module
@@ -23,11 +24,28 @@ from HLMVModel import HLMVModel
 Wiki = import_module('TFWiki-scripts.wikitools.wiki').Wiki
 Page = import_module('TFWiki-scripts.wikitools.page').Page
 
+VERSION = '3.3'
+def check_for_updates():
+  try:
+    r = requests.get('https://api.github.com/repos/jbzdarkid/3D-Models-automaton/releases/latest', timeout=10)
+    latest_release = r.json()['name']
+
+    if latest_release.split('.') > VERSION.split('.'):
+      print(f'A new version of the automation scripts are available. You are running {VERSION} but the latest release is {latest_release}.')
+      print('Please download the latest version from https://github.com/jbzdarkid/3D-Models-automaton/releases/latest')
+      sleep(10)
+
+  except:
+    pass
+
+
 if __name__ == '__main__':
   ctypes.windll.shcore.SetProcessDpiAwareness(2) # Set python itself to be DPI-aware so that we can compute boundaries correctly.
   number_of_images = 24 # Y rotations
   vertical_rotations = 1 # X rotations
   bounds_override = (0, 0, 0, 0) # Left, Top, Right, Bottom
+
+  check_for_updates()
 
   # Initial parameters. Mostly, you won't need to set these.
   model = HLMVModel({

@@ -10,6 +10,8 @@ from pathlib import Path
 
 from PIL import ImageFile, Image
 
+from automate import check_for_updates
+
 from importlib import import_module
 Wiki = import_module('TFWiki-scripts.wikitools.wiki').Wiki
 Page = import_module('TFWiki-scripts.wikitools.page').Page
@@ -173,6 +175,8 @@ HEX_TO_PAINT_NAME = {
 }
 
 if __name__ == '__main__':
+  check_for_updates()
+
   if len(sys.argv) > 1:
     folder = sys.argv[1]
   else:
