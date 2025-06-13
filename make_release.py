@@ -30,7 +30,7 @@ def check_version_number():
   r = requests.get('https://api.github.com/repos/jbzdarkid/3D-Models-automaton/releases/latest', timeout=60)
   
   latest_release = r.json()['name']
-  if latest_release.split('.') <= VERSION.split('.'):
+  if latest_release.split('.') == VERSION.split('.'):
     raise ValueError('Please bump the version in automate.py, then push, then run this script, and finally generate a github release')
 
   
