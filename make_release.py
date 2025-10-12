@@ -16,6 +16,7 @@ def zip_repository():
 
     z.write('TFWiki-scripts/wikitools/wiki.py')
     z.write('TFWiki-scripts/wikitools/page.py')
+    z.write('TFWiki-scripts/wikitools/requirements.txt')
 
     z.write('3DModels_BlackFirePlusBlackBackground/HLMV - Cubemap Fix.vpk')
     z.write('3DModels_BlackFirePlusBlackBackground/HLMV - Fire Overlay Fix.vpk')

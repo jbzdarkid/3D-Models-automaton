@@ -25,7 +25,7 @@ from HLMVModel import HLMVModel
 Wiki = import_module('TFWiki-scripts.wikitools.wiki').Wiki
 Page = import_module('TFWiki-scripts.wikitools.page').Page
 
-VERSION = '3.4'
+VERSION = '3.5'
 def check_for_updates():
   try:
     r = requests.get('https://api.github.com/repos/jbzdarkid/3D-Models-automaton/releases/latest', timeout=10)

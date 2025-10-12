@@ -1,2 +1,3 @@
 * text eol=LF
 *.exe binary
+*.vpk binary
