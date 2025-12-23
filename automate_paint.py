@@ -256,7 +256,7 @@ if __name__ == '__main__':
   try:
     username = input('Wiki username: ')
     user_agent = input('Custom user agent: ').strip()
-    wiki = Wiki('https://wiki.teamfortress.com/w/api.php', user_agent)
+    wiki = Wiki('https://wiki.teamfortress.com/w/api.php', user_agent, use_cache=False)
     for i in range(3):
       if wiki.login(username):
         break
