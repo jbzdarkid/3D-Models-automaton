@@ -10,7 +10,7 @@ from pathlib import Path
 
 from PIL import ImageFile, Image
 
-from automate import check_for_updates
+from make_release import check_for_updates
 
 from importlib import import_module
 Wiki = import_module('TFWiki-scripts.wikitools.wiki').Wiki

@@ -6,6 +6,10 @@ from importlib import import_module
 Wiki = import_module('TFWiki-scripts.wikitools.wiki').Wiki
 Page = import_module('TFWiki-scripts.wikitools.page').Page
 
+from make_release import check_for_updates
+
+# Checks to see if there's a newer version of this script.
+check_for_updates()
 
 # Search in this folder
 image_folder = r'C:\Users\localhost\Downloads\tmp\tmp'
@@ -18,8 +22,9 @@ description = '''
 [[Category:Heavy whatever]]
 '''
 
-# Use this edit summary if we overwrite an existing file and need to update its description
+# If we're overwriting an existing file, use this edit summary to update the description
 edit_summary = 'Editing description after automatic upload from https://github.com/jbzdarkid/3D-Models-automaton'
+
 
 
 
