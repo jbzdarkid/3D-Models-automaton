@@ -1,8 +1,9 @@
-from os import environ
-import requests
-import zipfile
 from io import BytesIO
-import web_browser
+from os import environ
+from pathlib import Path
+import requests
+import webbrowser
+import zipfile
 
 
 VERSION = '3.6'
@@ -19,11 +20,26 @@ def check_for_updates():
   except:
     pass
 
+def is_relative_to(file, path):
+  try:
+    file.relative_to(path)
+    return True
+  except:
+    return False
+
 
 def zip_repository():
   buffer = BytesIO()
   with zipfile.ZipFile(buffer, 'a', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as z:
     for file in Path('.').glob('**/*.py'):
+      if is_relative_to(file, 'venv'):
+        continue # Don't include my virtual environment
+      elif is_relative_to(file, 'mem'):
+        continue # Don't include any of the source code for mem.exe
+      elif is_relative_to(file, 'TFWiki-scripts/reports'):
+        continue # We only need TFWiki-scripts for the wikitools
+
+      print(f'- {file}')
       z.write(file)
 
     z.write('mem.exe')
@@ -41,15 +57,18 @@ def zip_repository():
 
 
 if __name__ == '__main__':
+  print('Fetching latest release')
   r = requests.get('https://api.github.com/repos/jbzdarkid/3D-Models-automaton/releases/latest', timeout=60)
 
   latest_release = r.json()['name']
   if latest_release.split('.') == VERSION.split('.'):
     raise ValueError('Please bump the version in make_release.py, then push, then run this script, and finally generate a github release')
 
+  print('Zipping repository')
   z = zip_repository()
   with open('3D-Models-automation.zip', 'wb') as f:
     f.write(z)
+  print('Done')
 
-  changelog = f'https://github.com/jbzdarkid/3D-Models-automaton/compare/{latest_release}...master'
-  web_browser.open(f'https://github.com/jbzdarkid/3D-Models-automaton/releases/new?tag={VERSION}&title={VERSION}&body=Please summarize the commits from {changelog}')
+  changelog = f'https://github.com/jbzdarkid/3D-Models-automaton/compare/v{latest_release}...master'
+  webbrowser.open(f'https://github.com/jbzdarkid/3D-Models-automaton/releases/new?tag=v{VERSION}&title={VERSION}&body=Please summarize the commits from {changelog}')
