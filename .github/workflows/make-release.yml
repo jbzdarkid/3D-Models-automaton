@@ -18,14 +18,12 @@ jobs:
       with:
         python-version: '3.x'
     - name: Update version in make_release.py
-      run: sed -i make_release.py "s/VERSION = .*$/VERSION = '${{ inputs.version }}'/"
-    - name: Commit new version number
       run: |
+        sed -i "s/VERSION = .*$/VERSION = '${{ inputs.version }}'/" make_release.py
         git config --global user.email "3D-Models-automaton@noreply.github.com"
         git config --global user.name "3D Models bot"
         git commit -am "Updated version to ${{ inputs.version }}"
         git diff
-    - name: Stop early
-      run: exit 1
+        exit 1 # instead of git push
     - name: Run release script
       run: python make_release.py
