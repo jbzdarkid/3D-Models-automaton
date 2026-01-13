@@ -20,6 +20,8 @@ from win32con import SW_MAXIMIZE
 from win32gui import (EnumWindows, GetWindowRect, GetWindowText,
   SetForegroundWindow, ShowWindow)
 
+from make_release import check_for_updates
+
 from imageprocessor import ImageProcessor
 from HLMVModel import HLMVModel
 Wiki = import_module('TFWiki-scripts.wikitools.wiki').Wiki
@@ -32,8 +34,6 @@ if __name__ == '__main__':
   number_of_images = 24 # Y rotations
   vertical_rotations = 1 # X rotations
   bounds_override = (0, 0, 0, 0) # Left, Top, Right, Bottom
-
-  check_for_updates()
 
   # Initial parameters. Mostly, you won't need to set these.
   model = HLMVModel({
