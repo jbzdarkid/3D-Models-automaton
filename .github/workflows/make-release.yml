@@ -1,0 +1,31 @@
+name: Release automation scripts
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        required: true
+        type: string
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+    - name: Update version in make_release.py
+      run: sed -i make_release.py "s/VERSION = .*$/VERSION = '${{ inputs.version }}'/"
+    - name: Commit new version number
+      run: |
+        git config --global user.email "3D-Models-automaton@noreply.github.com"
+        git config --global user.name "3D Models bot"
+        git commit -am "Updated version to ${{ inputs.version }}"
+        git diff
+    - name: Stop early
+      run: exit 1
+    - name: Run release script
+      run: python make_release.py

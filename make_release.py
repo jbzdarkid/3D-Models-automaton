@@ -7,11 +7,23 @@ import zipfile
 
 
 VERSION = '3.6'
+
+
+def make_request(method, path, *args, **kwargs):
+  url = f'https://api.github.com/repos/jbzdarkid/3D-Models-automaton/{path}'
+  kwargs['headers'] = {
+    'Accept': 'application/vnd.github.v3+json',
+    'Authorization': 'Bearer ' + environ.get('GITHUB_TOKEN', None),
+  }
+  r = requests.request(method, url, *args, **kwargs)
+  if not r.ok:
+    print(r.status_code, r.text)
+  r.raise_for_status()
+  return r.json()
+
 def check_for_updates():
   try:
-    r = requests.get('https://api.github.com/repos/jbzdarkid/3D-Models-automaton/releases/latest', timeout=10)
-    latest_release = r.json()['name']
-
+    latest_release = make_request('GET', 'releases/latest')['name']
     if latest_release.split('.') > VERSION.split('.'):
       print(f'A new version of the automation scripts are available. You are running {VERSION} but the latest release is {latest_release}.')
       print('Please download the latest version from https://github.com/jbzdarkid/3D-Models-automaton/releases/latest')
@@ -58,9 +70,7 @@ def zip_repository():
 
 if __name__ == '__main__':
   print('Fetching latest release')
-  r = requests.get('https://api.github.com/repos/jbzdarkid/3D-Models-automaton/releases/latest', timeout=60)
-
-  latest_release = r.json()['name']
+  latest_release = make_request('GET', 'releases/latest')['name']
   if latest_release.split('.') == VERSION.split('.'):
     raise ValueError('Please bump the version in make_release.py, then push, then run this script, and finally generate a github release')
 
@@ -70,5 +80,5 @@ if __name__ == '__main__':
     f.write(z)
   print('Done')
 
-  changelog = f'https://github.com/jbzdarkid/3D-Models-automaton/compare/v{latest_release}...master'
-  webbrowser.open(f'https://github.com/jbzdarkid/3D-Models-automaton/releases/new?tag=v{VERSION}&title={VERSION}&body=Please summarize the commits from {changelog}')
+  body = f'Please summarize the commits from https://github.com/jbzdarkid/3D-Models-automaton/compare/v{latest_release}...master')
+  make_request('POST', 'releases', tag_name=VERSION, name='v' + VERSION, body=body, draft=True)
