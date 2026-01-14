@@ -18,7 +18,7 @@ jobs:
         submodules: recursive
     - uses: actions/setup-python@v5
       with:
-        python-version: '3.x'
+        python-version: '3.7.9'
     - name: Install dependencies
       run: pip install -r requirements.txt
     - name: Update version in make_release.py
