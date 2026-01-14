@@ -92,4 +92,4 @@ if __name__ == '__main__':
   })
 
   release_id = j['id']
-  make_request('POST', f'https://uploads.github.com/repos/jbzdarkid/3D-Models-automaton/releases/{release_id}/assets, data=z, headers={'Content-Type': 'application/binary'})
+  make_request('POST', f'https://uploads.github.com/repos/jbzdarkid/3D-Models-automaton/releases/{release_id}/assets', data=z, headers={'Content-Type': 'application/binary'})
