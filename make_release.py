@@ -6,7 +6,7 @@ import webbrowser
 import zipfile
 
 
-VERSION = '3.6'
+VERSION = '3.7'
 
 
 def make_request(method, path, *args, **kwargs):
