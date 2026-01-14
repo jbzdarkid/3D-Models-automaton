@@ -23,7 +23,7 @@ jobs:
         git config --global user.email "3D-Models-automaton@noreply.github.com"
         git config --global user.name "3D Models bot"
         git commit -am "Updated version to ${{ inputs.version }}"
-        git diff
+        git show HEAD
         exit 1 # instead of git push
     - name: Run release script
       run: python make_release.py
