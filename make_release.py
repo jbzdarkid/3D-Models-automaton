@@ -14,10 +14,12 @@ def make_request(method, path, *args, **kwargs):
     url = path
   else:
     url = f'https://api.github.com/repos/jbzdarkid/3D-Models-automaton/{path}'
-  kwargs['headers'] = {
+  if 'headers' not in kwargs:
+    kwargs['headers'] = {}
+  kwargs['headers'].update({
     'Accept': 'application/vnd.github.v3+json',
     'Authorization': 'Bearer ' + environ.get('GITHUB_TOKEN', None),
-  }
+  })
   r = requests.request(method, url, *args, **kwargs)
   if not r.ok:
     print(r.status_code, r.text)
@@ -92,5 +94,5 @@ if __name__ == '__main__':
   })
 
   release_id = j['id']
-  upload_url = f'https://uploads.github.com/repos/jbzdarkid/3D-Models-automaton/releases/{release_id}/assets?name=3D-Models-automation.zip'
+  upload_url = f'https://uploads.github.com/repos/jbzdarkid/3D-Models-automaton/releases/{release_id}/assets?name=3D-models-automation.zip'
   make_request('POST', upload_url, data=z, headers={'Content-Type': 'application/binary'})
