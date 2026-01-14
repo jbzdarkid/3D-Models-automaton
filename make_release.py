@@ -89,5 +89,8 @@ if __name__ == '__main__':
   })
   print(j)
   release_id = j['id']
+  upload_url = j['upload_url']
+  print(f'https://api.github.com/repos/jbzdarkid/3D-Models-automaton/{path}')
+  print(upload_url)
 
-  make_request('POST', f'releases/{release_id}/assets', data=z, headers={'Content-Type': 'application/binary'})
+  make_request('POST', f'releases/{release_id}/assets?name=3D-Models-automation.zip', data=z, headers={'Content-Type': 'application/binary'})
