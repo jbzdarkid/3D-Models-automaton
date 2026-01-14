@@ -69,6 +69,8 @@ def zip_repository():
     z.write('3DModels_BlackFirePlusBlackBackground/HLMV - Fire Overlay Fix.vpk')
     z.write('3DModels_BlackFirePlusBlackBackground/HLMV - Skybox Background - Black.vpk')
 
+    z.write('MVScripts/AUTO-PaintedVariants-Part1.mvscript')
+    z.write('MVScripts/AUTO-PaintedVariants-Part2.mvscript')
 
   return buffer.getvalue()
 
