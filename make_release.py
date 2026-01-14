@@ -91,4 +91,5 @@ if __name__ == '__main__':
     'draft': True
   })
 
-  make_request('POST', j['upload_url'], data=z, headers={'Content-Type': 'application/binary'})
+  release_id = j['id']
+  make_request('POST', f'https://uploads.github.com/repos/jbzdarkid/3D-Models-automaton/releases/{release_id}/assets, data=z, headers={'Content-Type': 'application/binary'})
