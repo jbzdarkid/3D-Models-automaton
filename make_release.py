@@ -87,6 +87,7 @@ if __name__ == '__main__':
     'body': body,
     'draft': True
   })
+  print(j)
   release_id = j['id']
 
   make_request('POST', f'releases/{release_id}/assets', data=z, headers={'Content-Type': 'application/binary'})
