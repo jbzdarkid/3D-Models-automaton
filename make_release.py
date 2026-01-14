@@ -10,7 +10,10 @@ VERSION = '3.6'
 
 
 def make_request(method, path, *args, **kwargs):
-  url = f'https://api.github.com/repos/jbzdarkid/3D-Models-automaton/{path}'
+  if path.startswith('https:'):
+    url = path
+  else:
+    url = f'https://api.github.com/repos/jbzdarkid/3D-Models-automaton/{path}'
   kwargs['headers'] = {
     'Accept': 'application/vnd.github.v3+json',
     'Authorization': 'Bearer ' + environ.get('GITHUB_TOKEN', None),
@@ -87,10 +90,5 @@ if __name__ == '__main__':
     'body': body,
     'draft': True
   })
-  print(j)
-  release_id = j['id']
-  upload_url = j['upload_url']
-  print(f'https://api.github.com/repos/jbzdarkid/3D-Models-automaton/{path}')
-  print(upload_url)
 
-  make_request('POST', f'releases/{release_id}/assets?name=3D-Models-automation.zip', data=z, headers={'Content-Type': 'application/binary'})
+  make_request('POST', j['upload_url'], data=z, headers={'Content-Type': 'application/binary'})
