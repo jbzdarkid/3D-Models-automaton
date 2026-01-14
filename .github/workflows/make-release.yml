@@ -28,3 +28,5 @@ jobs:
         git push
     - name: Run release script
       run: python make_release.py
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
