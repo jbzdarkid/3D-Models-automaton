@@ -14,11 +14,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        submodules: recursive
     - uses: actions/setup-python@v5
       with:
         python-version: '3.x'
     - name: Install dependencies
-      run: pip install requests
+      run: pip -r requirements.txt
     - name: Update version in make_release.py
       run: |
         sed -i "s/VERSION = .*$/VERSION = '${{ inputs.version }}'/" make_release.py
