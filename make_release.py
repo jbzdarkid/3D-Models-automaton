@@ -16,10 +16,9 @@ def make_request(method, path, *args, **kwargs):
     url = f'https://api.github.com/repos/jbzdarkid/3D-Models-automaton/{path}'
   if 'headers' not in kwargs:
     kwargs['headers'] = {}
-  kwargs['headers'].update({
-    'Accept': 'application/vnd.github.v3+json',
-    'Authorization': 'Bearer ' + environ.get('GITHUB_TOKEN', None),
-  })
+  kwargs['headers']['Accept'] = 'application/vnd.github.v3+json'
+  if 'GITHUB_TOKEN' in environ:
+    kwargs['headers']['Authorization'] = 'Bearer ' + environ['GITHUB_TOKEN']
   r = requests.request(method, url, *args, **kwargs)
   if not r.ok:
     print(r.status_code, r.text)
