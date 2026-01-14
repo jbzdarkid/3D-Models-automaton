@@ -82,8 +82,8 @@ if __name__ == '__main__':
 
   body = f'Please summarize the commits from https://github.com/jbzdarkid/3D-Models-automaton/compare/v{latest_release}...master'
   j = make_request('POST', 'releases', json={
-    'tag_name': VERSION,
-    'name': 'v' + VERSION,
+    'tag_name': 'v' + VERSION,
+    'name': VERSION,
     'body': body,
     'draft': True
   })
