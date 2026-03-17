@@ -2,7 +2,7 @@
 Deals with image processing. This file is the bottleneck of the process, and
 is thus using numpy for efficiency. As a result, it is not very easy to read.
 """
-from PIL.Image import ANTIALIAS, fromarray, new
+from PIL.Image import Resampling, fromarray, new
 from numpy import array, dstack, inner, uint8, where
 
 class ImageProcessor(object):
@@ -67,36 +67,43 @@ class ImageProcessor(object):
     Then, finds the closest-cropped lines that are all white.
     Uses numpy because traversing python arrays is very slow.
     """
-    # white_arr[:, :, 0] means:
-    # Treat the white image like a 3D array (x, y, RGB).
-    # Then, select all X coordinates, all Y coordinates, but only Z[0] (red).
-    # Similarly, white_arr[:, :, 1] is all of the green values.
-    # "inner" is the sum of the products of each pair of elements.
-    # So, we subtract the red values between white and black,
-    # multiply by .299, then add the results to green and blue.
 
-    # This needs to be dtype=int to prevent an overflow when adding
+    # This needs to be dtype=int to prevent overflow/underflow, even though the underlying values are 0-255.
     white_arr = array(white_image, dtype=int)
     black_arr = array(black_image, dtype=int)
-    blended_arr = dstack((
-        (white_arr[:, :, 0] + black_arr[:, :, 0])/2,
-        (white_arr[:, :, 1] + black_arr[:, :, 1])/2,
-        (white_arr[:, :, 2] + black_arr[:, :, 2])/2,
-        255 - inner(white_arr - black_arr, [.299, .587, .114])
-        ))
+
+    # First, average the color of each pixel between the black and white frames.
+    average_color = (white_arr + black_arr) / 2
+    # Then, compute the percieved luminescence of each pixel in the images.
+    white_lum = inner(white_arr, [.299, .587, .114])
+    black_lum = inner(black_arr, [.299, .587, .114])
+    # We define 'transparency' as the difference in luminescence between black and white.
+    # If an item is fully opaque, it will be exactly the same on both white and black backgrounds. (255 - (37 - 37) = 255)
+    # If an item is fully transparent, it will be white on a white background, and black on a black background. (255 - (255 - 0) = 0)
+    # In rare cases (due to aliasing), the black image may be brighter than the white one. We raise those values to 0 to avoid errors.
+    alpha = 255 - maximum(white_lum - black_lum, 0)
+
     # Calculate crop lines by looking for all-white && all-black pixels, i.e. places where the luma is zero.
     # np.any() will return 'True' for any rows which contain nonzero integers (because zero is Falsy).
     # Then, we use nonzero() to get the only indices which are 'True', which are the rows with content.
     # (nonzero returns a tuple for some reason, so we also have to [0] it.)
-    horizontal = blended_arr[:, :, 3].any(axis=0).nonzero()[0]
-    vertical = blended_arr[:, :, 3].any(axis=1).nonzero()[0]
+    horizontal = alpha.any(axis=0).nonzero()[0]
+    vertical = alpha.any(axis=1).nonzero()[0]
 
     self.cropping['left'].append(horizontal[0])
     self.cropping['top'].append(vertical[0])
     self.cropping['right'].append(horizontal[-1])
     self.cropping['bottom'].append(vertical[-1])
 
-    # This needs to be a uint8 to render correctly.
+    # Merge the colors and the alpha mask to create the final image.
+    blended_arr = dstack((
+      average_color[:, :, 0],
+      average_color[:, :, 1],
+      average_color[:, :, 2],
+      alpha,
+      ))
+
+    # PIL expects all pixels to be uint8 (0-255).
     blended_image = fromarray(blended_arr.astype(uint8), mode='RGBA')
     blended_image = blended_image.crop((
         horizontal[0],
@@ -143,7 +150,7 @@ class ImageProcessor(object):
       image = image.resize((
           int(image.width*target_ratio),
           int(image.height*target_ratio),
-          ), ANTIALIAS)
+          ), Resampling.LANCZOS)
       left_crop = int(target_ratio*(self.cropping['left'][i]-min_cropping[0]))
       top_crop = int(target_ratio*(self.cropping['top'][i]-min_cropping[1]))
       full_image.paste(image, (curr_offset, top_crop), image)
