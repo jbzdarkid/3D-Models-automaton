@@ -33,15 +33,13 @@ class ImageProcessor():
       len(black_arr[:, 0, 0]) * 3 // 4,
     ]
 
-    # This returns a 2d array of coordinates ([x0, x1, x2, x3], [y0, y1, y2, y3])
+    # This returns a tuple of coordinates ([x0, x1, x2, x3, x4, ...], [y0, y1, y2, y3, y4, ...])
     # which are all black on the black_image and all white on the white_image
     h_empty_pixels = where(
       (white_arr[horizontal_samples, :, :] == [255, 255, 255])
       &
       (black_arr[horizontal_samples, :, :] == [0, 0, 0])
     )
-    print(h_empty_pixels[0].shape)
-    assert False # TODO: Confirm above comment.
 
     vertical_samples = [
       len(black_arr[0, :, 0]) * 1 // 4,
@@ -49,7 +47,7 @@ class ImageProcessor():
       len(black_arr[0, :, 0]) * 3 // 4,
     ]
 
-    # This returns a 2d array of coordinates [[x0, x1, x2, x3], [y0, y1, y2, y3]]
+    # This returns a tuple of coordinates ([x0, x1, x2, x3, x4, ...], [y0, y1, y2, y3, y4, ...])
     # which are all black on the black_image and all white on the white_image
     v_empty_pixels = where(
       (white_arr[:, vertical_samples, :].sum(axis=2) == 255*3)
@@ -66,8 +64,7 @@ class ImageProcessor():
 
   def blend(self, white_image, black_image):
     """
-    Blends the two images into an alpha image using percieved luminescence.
-    https://en.wikipedia.org/wiki/Luma_(video)#Use_of_relative_luminance
+    Blends two RGB images on white/black backgrounds into a transparent RGBA image.
     Then, finds the closest-cropped lines that are all white.
     Uses numpy because traversing python arrays is very slow.
     """
@@ -78,14 +75,16 @@ class ImageProcessor():
 
     # First, average the color of each pixel between the black and white frames.
     average_color = (white_arr + black_arr) / 2
-    # Then, compute the percieved luminescence of each pixel in the images.
-    white_lum = inner(white_arr, [.299, .587, .114])
-    black_lum = inner(black_arr, [.299, .587, .114])
+    
+    # Then, compute the delta in luminescence between the black and white images.
+    # We are computing the percieved luminescence using an inner product.
+    # https://en.wikipedia.org/wiki/Luma_(video)#Use_of_relative_luminance
+    lum_delta = inner((white_arr - black_arr), [.299, .587, .114])
     # We define 'transparency' as the difference in luminescence between black and white.
     # If an item is fully opaque, it will be exactly the same on both white and black backgrounds. (255 - (37 - 37) = 255)
     # If an item is fully transparent, it will be white on a white background, and black on a black background. (255 - (255 - 0) = 0)
     # In rare cases (due to aliasing), the black image may be brighter than the white one. We raise those values to 0 to avoid errors.
-    alpha = 255 - maximum(white_lum - black_lum, 0)
+    alpha = 255 - maximum(lum_delta, 0)
 
     # Calculate crop lines by looking for all-white && all-black pixels, i.e. places where the luma is zero.
     # np.any() will return 'True' for any rows which contain nonzero integers (because zero is Falsy).
@@ -169,12 +168,12 @@ class ImageProcessor():
         max_frame_size[1],
     ))
 
-    full_offset_map = ','.join(
-      curr_offset,
-      max_frame_size[0],
-      max_frame_size[1],
-      self.x_rotations,
+    full_offset_map = ','.join((
+      str(curr_offset),
+      str(max_frame_size[0]),
+      str(max_frame_size[1]),
+      str(self.x_rotations),
       *[str(o) for o in offset_map]
-    )
+    ))
 
     return (full_image, full_offset_map)

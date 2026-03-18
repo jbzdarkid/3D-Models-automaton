@@ -28,7 +28,9 @@ def mem(*args):
     return [bytes.fromhex(line) for line in stdout.split(' ')]
   if args[0] == 'read':
     return bytes.fromhex(stdout.strip())
-  raise ValueError(f'Unknown arguments: {args}')
+  if args[0] == 'write':
+    return
+  raise ValueError(f'Unknown command: {args[0]}')
 
 class HLMVModel():
   """
