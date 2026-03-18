@@ -10,7 +10,7 @@ import zipfile
 import requests
 
 
-VERSION = '3.8'
+VERSION = '3.9'
 
 
 def make_request(method, path, *args, **kwargs):
