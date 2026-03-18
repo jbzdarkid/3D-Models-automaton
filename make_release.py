@@ -96,7 +96,7 @@ def zip_repository():
 if __name__ == '__main__':
   print('Fetching latest release')
   current_release = make_request('GET', 'releases/latest')['name']
-  if current_release.split('.') <= VERSION.split('.'):
+  if current_release.split('.') >= VERSION.split('.'):
     raise ValueError(f'The version in make_release.py {VERSION} is not greater than the latest released version {current_release}')
 
   print('Zipping repository')
