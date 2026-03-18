@@ -1,8 +1,8 @@
 from io import BytesIO
 from os import environ
 from pathlib import Path
+from time import sleep
 import requests
-import webbrowser
 import zipfile
 
 
@@ -31,7 +31,7 @@ def check_for_updates():
     if latest_release.split('.') > VERSION.split('.'):
       print(f'A new version of the automation scripts are available. You are running {VERSION} but the latest release is {latest_release}.')
       print('Please download the latest version from https://github.com/jbzdarkid/3D-Models-automaton/releases/latest')
-      sleep(10)
+      sleep(1)
 
   except:
     pass

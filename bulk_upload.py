@@ -1,5 +1,5 @@
 from pathlib import Path
-from PIL import ImageFile, Image
+from PIL import Image
 from shutil import copy as copy_file
 
 from importlib import import_module

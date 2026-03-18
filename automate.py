@@ -5,7 +5,6 @@ Load up your model in HLMV, then run this script.
 """
 
 import ctypes
-import requests
 from datetime import datetime
 from hashlib import md5
 from importlib import import_module
@@ -13,7 +12,6 @@ from os import path, remove
 from time import sleep
 from urllib.parse import quote
 
-from PIL import Image
 from PIL import ImageFile
 from PIL.ImageGrab import grab
 from win32con import SW_MAXIMIZE

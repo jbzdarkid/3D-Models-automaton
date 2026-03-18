@@ -3,7 +3,7 @@ Deals with image processing. This file is the bottleneck of the process, and
 is thus using numpy for efficiency. As a result, it is not very easy to read.
 """
 from PIL.Image import Resampling, fromarray, new
-from numpy import array, dstack, inner, uint8, where
+from numpy import array, dstack, inner, maximum, uint8, where
 
 class ImageProcessor(object):
   """
