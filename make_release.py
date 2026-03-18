@@ -1,15 +1,24 @@
+"""
+Packages the repo, and uploads it to github to make a new release.
+Also holds the source-of-truth VERSION so that other files can check if we're on the latest version.
+"""
 from io import BytesIO
 from os import environ
 from pathlib import Path
 from time import sleep
-import requests
 import zipfile
+import requests
 
 
 VERSION = '3.8'
 
 
 def make_request(method, path, *args, **kwargs):
+  """
+  Open a network request using requests.
+  Defaults to calling the github APIs for this repo, but can be overridden.
+  Sources the GITHUB_TOKEN from the environ (for CI) but can also run without.
+  """
   if path.startswith('https:'):
     url = path
   else:
@@ -19,17 +28,21 @@ def make_request(method, path, *args, **kwargs):
   kwargs['headers']['Accept'] = 'application/vnd.github.v3+json'
   if 'GITHUB_TOKEN' in environ:
     kwargs['headers']['Authorization'] = 'Bearer ' + environ['GITHUB_TOKEN']
-  r = requests.request(method, url, *args, **kwargs)
+  r = requests.request(method, url, *args, timeout=10, **kwargs)
   if not r.ok:
     print(r.status_code, r.text)
   r.raise_for_status()
   return r.json()
 
 def check_for_updates():
+  """
+  Check to see if this copy of the script is the latest, by checking the public github releases.
+  """
   try:
     latest_release = make_request('GET', 'releases/latest')['name']
     if latest_release.split('.') > VERSION.split('.'):
-      print(f'A new version of the automation scripts are available. You are running {VERSION} but the latest release is {latest_release}.')
+      print('A new version of the automation scripts are available.')
+      print(f'You are running {VERSION} but the latest release is {latest_release}.')
       print('Please download the latest version from https://github.com/jbzdarkid/3D-Models-automaton/releases/latest')
       sleep(1)
 
@@ -45,14 +58,17 @@ def is_relative_to(file, path):
 
 
 def zip_repository():
+  """
+  Assemble a zip file with all the important files in this repo, for publishing.
+  """
   buffer = BytesIO()
   with zipfile.ZipFile(buffer, 'a', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as z:
     for file in Path('.').glob('**/*.py'):
       if is_relative_to(file, 'venv'):
         continue # Don't include my virtual environment
-      elif is_relative_to(file, 'mem'):
+      if is_relative_to(file, 'mem'):
         continue # Don't include any of the source code for mem.exe
-      elif is_relative_to(file, 'TFWiki-scripts/reports'):
+      if is_relative_to(file, 'TFWiki-scripts/reports'):
         continue # We only need TFWiki-scripts for the wikitools
 
       print(f'- {file}')

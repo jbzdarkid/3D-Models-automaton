@@ -5,7 +5,7 @@ is thus using numpy for efficiency. As a result, it is not very easy to read.
 from PIL.Image import Resampling, fromarray, new
 from numpy import array, dstack, inner, maximum, uint8, where
 
-class ImageProcessor(object):
+class ImageProcessor():
   """
   A class to handle all the imageprocessing done on the screenshots.
   Deals with blending (finding transparency), cropping, and stitching.
@@ -26,19 +26,22 @@ class ImageProcessor(object):
     """
     white_arr = array(white_image, dtype=int)
     black_arr = array(black_image, dtype=int)
-    
+
     horizontal_samples = [
       len(black_arr[:, 0, 0]) * 1 // 4,
       len(black_arr[:, 0, 0]) * 2 // 4,
       len(black_arr[:, 0, 0]) * 3 // 4,
     ]
 
-    # This returns a 2d array of [[x coordinates], [y coordinates]] which are all black on the black_image and all white on the white_image
+    # This returns a 2d array of coordinates ([x0, x1, x2, x3], [y0, y1, y2, y3])
+    # which are all black on the black_image and all white on the white_image
     h_empty_pixels = where(
       (white_arr[horizontal_samples, :, :] == [255, 255, 255])
       &
       (black_arr[horizontal_samples, :, :] == [0, 0, 0])
     )
+    print(h_empty_pixels[0].shape)
+    assert False # TODO: Confirm above comment.
 
     vertical_samples = [
       len(black_arr[0, :, 0]) * 1 // 4,
@@ -46,13 +49,14 @@ class ImageProcessor(object):
       len(black_arr[0, :, 0]) * 3 // 4,
     ]
 
-    # This returns a 2d array of [[x coordinates], [y coordinates]] which are all black on the black_image and all white on the white_image
+    # This returns a 2d array of coordinates [[x0, x1, x2, x3], [y0, y1, y2, y3]]
+    # which are all black on the black_image and all white on the white_image
     v_empty_pixels = where(
       (white_arr[:, vertical_samples, :].sum(axis=2) == 255*3)
       &
       (black_arr[:, vertical_samples, :].sum(axis=2) == 0)
     )
-    
+
     return (
       h_empty_pixels[1].min(), # Left
       v_empty_pixels[0].min(), # Top
@@ -132,7 +136,7 @@ class ImageProcessor(object):
         )
     print('Max frame size: ' + str(max_frame_size))
     target_ratio = self.target_dimension / max(max_frame_size)
-    print('Target scaling ratio: %f' % target_ratio)
+    print(f'Target scaling ratio: {target_ratio:f}')
     max_frame_size = (
         int(target_ratio * max_frame_size[0]),
         int(target_ratio * max_frame_size[1])
@@ -165,7 +169,12 @@ class ImageProcessor(object):
         max_frame_size[1],
     ))
 
-    full_offset_map = "%d,%d,%d,%d," % (curr_offset, max_frame_size[0], max_frame_size[1], self.x_rotations)
-    full_offset_map += ",".join([str(o) for o in offset_map])
+    full_offset_map = ','.join(
+      curr_offset,
+      max_frame_size[0],
+      max_frame_size[1],
+      self.x_rotations,
+      *[str(o) for o in offset_map]
+    )
 
     return (full_image, full_offset_map)

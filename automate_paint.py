@@ -5,14 +5,14 @@ Load up your model in HLMV, then run this script.
 """
 
 import sys
-from numpy import array
+from importlib import import_module
 from pathlib import Path
+from numpy import array
 
 from PIL import ImageFile, Image
 
 from make_release import check_for_updates
 
-from importlib import import_module
 Wiki = import_module('TFWiki-scripts.wikitools.wiki').Wiki
 Page = import_module('TFWiki-scripts.wikitools.page').Page
 

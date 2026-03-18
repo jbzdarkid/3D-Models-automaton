@@ -9,6 +9,7 @@ from datetime import datetime
 from hashlib import md5
 from importlib import import_module
 from os import path, remove
+from sys import exit
 from time import sleep
 from urllib.parse import quote
 
@@ -21,14 +22,15 @@ from win32gui import (EnumWindows, GetWindowRect, GetWindowText,
 from make_release import check_for_updates
 
 from imageprocessor import ImageProcessor
-from HLMVModel import HLMVModel
+from hlmv_model import HLMVModel
 Wiki = import_module('TFWiki-scripts.wikitools.wiki').Wiki
 Page = import_module('TFWiki-scripts.wikitools.page').Page
 
 if __name__ == '__main__':
   check_for_updates()
 
-  ctypes.windll.shcore.SetProcessDpiAwareness(2) # Set python itself to be DPI-aware so that we can compute boundaries correctly.
+  # Set python itself to be DPI-aware so that we can compute boundaries correctly.
+  ctypes.windll.shcore.SetProcessDpiAwareness(2)
   number_of_images = 24 # Y rotations
   vertical_rotations = 1 # X rotations
   bounds_override = (0, 0, 0, 0) # Left, Top, Right, Bottom
@@ -119,7 +121,7 @@ if __name__ == '__main__':
     with open(output_file, 'rb') as file:
       r = page.upload(file)
     if r:
-      raise ValueError('Failed to upload %s: %s' % (file, r))
+      raise ValueError(f'Failed to upload {file}: {r}')
   except:
     import traceback
     traceback.print_exc()
@@ -129,7 +131,7 @@ if __name__ == '__main__':
   # Generate the description after uploading so that the timestamp is correct.
   title = title.replace(' ', '_')
   hash = md5(title.encode('utf-8')).hexdigest()
-  url = 'https://wiki.teamfortress.com/w/images/%s/%s/%s' % (hash[:1], hash[:2], quote(title))
+  url = f'https://wiki.teamfortress.com/w/images/{hash[:1]}/{hash[:2]}/{quote(title)}'
   category = '3D model images' if not title.startswith('User_') else 'User images'
   description = '''{{#switch: {{{1|}}}
 | url = <nowiki>%s?%s</nowiki>
@@ -148,7 +150,7 @@ if __name__ == '__main__':
   output_text = 'temp.txt'
   if path.exists(output_text):
     remove(output_text)
-  with open(output_text, 'w') as file:
+  with open(output_text, 'w', encoding='utf-8') as file:
     file.write(description)
 
   page.edit(description, summary='Automatic update using 3D-Models-automation', bot=False)

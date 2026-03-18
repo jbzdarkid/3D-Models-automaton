@@ -1,3 +1,9 @@
+"""
+Handles functionality related to HLMV, in a "model view controller" sense.
+Primarily responsible for retaining info about the current state of HLMV,
+and cross-communicating with mem.exe to change said state.
+Also handles the rotation math.
+"""
 from math import sin, cos, radians
 from subprocess import Popen, PIPE
 from struct import pack, unpack
@@ -17,16 +23,21 @@ def mem(*args):
     else:
       raise ValueError('Unknown argument type: ' + type(arg))
 
-  proc = Popen(params, stdout=PIPE, stderr=PIPE, universal_newlines=True)
-  stdout, stderr = proc.communicate()
+  with Popen(params, stdout=PIPE, stderr=PIPE, universal_newlines=True) as proc:
+    stdout, stderr = proc.communicate()
   if stderr:
-    raise Exception(stderr)
-  elif args[0] == 'sigscan':
+    raise ValueError(stderr)
+  if args[0] == 'sigscan':
     return [bytes.fromhex(line) for line in stdout.split(' ')]
-  elif args[0] == 'read':
+  if args[0] == 'read':
     return bytes.fromhex(stdout.strip())
+  raise ValueError(f'Unknown arguments: {args}')
 
-class HLMVModel(object):
+class HLMVModel():
+  """
+  See module docstring.
+  """
+
   def __init__(self, initial = None):
     """
     Iniitial model setup. Enable normal maps, set the background to white,
@@ -34,12 +45,43 @@ class HLMVModel(object):
     If initial values are specified, rot and trans will be set instead.
     """
 
-    # To avoid having to recompile mem.exe every time HLMV updates,
-    # I have switched the hard-coded offsets to instead use "signature scans".
-    # These are hex-encoded assembly bytes which preceed the usage of these
-    # particular HLMV variables.
-    # mem.exe will search for these bytes and return the assembly (also in hex)
-    # and we can then decode that assembly back into the offset of the variable.
+    self.handle_sigscans()
+
+    if 'nm' in self.mem_offsets:
+      mem('write', pack('b', 1), self.mem_offsets['nm'])
+
+    if not initial:
+      initial = {}
+
+    mem('write', pack('ffff', 1.0, 1.0, 1.0, 1.0), self.mem_offsets['color'])
+    if initial.get('rotation', None):
+      self.rotation = initial['rotation']
+      mem('write', pack('fff', self.rotation), self.mem_offsets['rot'])
+    else: # Load from current state
+      self.rotation = unpack('fff', mem('read', '12', self.mem_offsets['rot']))
+    if initial.get('translation', None):
+      self.translation = initial['translation']
+      mem('write', pack('fff', self.translation), self.mem_offsets['trans'])
+    else:
+      self.translation = unpack('fff', mem('read', '12', self.mem_offsets['trans']))
+    if initial.get('rotation_offset', None):
+      self.rot_offset = initial['rotation_offset']
+    else:
+      self.rot_offset = 0
+    if initial.get('vertical_offset', None):
+      self.vert_offset = initial['vertical_offset']
+    else:
+      self.vert_offset = 0
+
+  def handle_sigscans(self):
+    """
+    To avoid having to recompile mem.exe every time HLMV updates,
+    I have switched the hard-coded offsets to instead use "signature scans".
+    These are hex-encoded assembly bytes which preceed the usage of these particular HLMV variables.
+    mem.exe will search for these bytes and return the assembly (also in hex)
+    and we can then decode that assembly back into the offset of the variables.
+    """
+
     sigscans = mem('sigscan', # this closing paren is because vim is an idiot )
       # Shared between HLMV and HLMV++ x86
       '50F30F2CC0F30F1005', # color
@@ -142,31 +184,6 @@ class HLMVModel(object):
       print('\n'.join((f'{i} {scan}' for i, scan in enumerate(sigscans))))
       raise ValueError('Unable to determine HLMV/HLMV++ version, please recompute sigscans')
 
-    if 'nm' in self.mem_offsets:
-      mem('write', pack('b', 1), self.mem_offsets['nm'])
-
-    if not initial:
-      initial = {}
-
-    mem('write', pack('ffff', 1.0, 1.0, 1.0, 1.0), self.mem_offsets['color'])
-    if initial.get('rotation', None):
-      self.rotation = initial['rotation']
-      mem('write', pack('fff', self.rotation), self.mem_offsets['rot'])
-    else: # Load from current state
-      self.rotation = unpack('fff', mem('read', '12', self.mem_offsets['rot']))
-    if initial.get('translation', None):
-      self.translation = initial['translation']
-      mem('write', pack('fff', self.translation), self.mem_offsets['trans'])
-    else:
-      self.translation = unpack('fff', mem('read', '12', self.mem_offsets['trans']))
-    if initial.get('rotation_offset', None):
-      self.rot_offset = initial['rotation_offset']
-    else:
-      self.rot_offset = 0
-    if initial.get('vertical_offset', None):
-      self.vert_offset = initial['vertical_offset']
-    else:
-      self.vert_offset = 0
 
   def set_background(self, value):
     """

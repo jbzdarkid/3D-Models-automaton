@@ -1,12 +1,17 @@
-from pathlib import Path
-from PIL import Image
-from shutil import copy as copy_file
-
+"""
+Small helper for uploading lots of files at once.
+This repo is one of the few places for the TF2 wiki which already has wikitools integration,
+so it's a convenient spot for writing utilities like this.
+"""
 from importlib import import_module
-Wiki = import_module('TFWiki-scripts.wikitools.wiki').Wiki
-Page = import_module('TFWiki-scripts.wikitools.page').Page
+from pathlib import Path
+from shutil import copy as copy_file
+from sys import exit
 
 from make_release import check_for_updates
+
+Wiki = import_module('TFWiki-scripts.wikitools.wiki').Wiki
+Page = import_module('TFWiki-scripts.wikitools.page').Page
 
 # Checks to see if there's a newer version of this script.
 check_for_updates()
