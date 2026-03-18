@@ -27,14 +27,15 @@ jobs:
         pip install pylint
     - name: Verify linter status
       run: ./venv/Scripts/pylint.exe *.py
-    - name: Update version in make_release.py
+    - name: Update version and run make_release.py
       run: |
         sed -i "s/VERSION = .*$/VERSION = '${{ inputs.version }}'/" make_release.py
+        ./venv/Scripts/python.exe make_release.py
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Push changes (on success)
+      run: |
         git config --global user.email "3D-Models-automaton@noreply.github.com"
         git config --global user.name "3D Models bot"
         git commit -am "Updated version to ${{ inputs.version }}"
         git push
-    - name: Run release script
-      run: ./venv/Scripts/python.exe make_release.py
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

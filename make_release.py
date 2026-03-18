@@ -101,9 +101,6 @@ if __name__ == '__main__':
 
   print('Zipping repository')
   zip_buffer = zip_repository()
-  # with open('3D-Models-automation.zip', 'wb') as f:
-  #   f.write(zip_buffer)
-  # print('Done')
 
   body = f'Please summarize the commits from https://github.com/jbzdarkid/3D-Models-automaton/compare/v{current_release}...master'
   j = make_request('POST', 'releases', json={
