@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   run:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v4
@@ -18,9 +18,15 @@ jobs:
         submodules: recursive
     - uses: actions/setup-python@v5
       with:
-        python-version: '3.x'
-    - name: Install dependencies
-      run: pip install requests
+        python-version: '3.7.9'
+    - name: Set up requirements
+      run: |
+        py -V:3.7 -m venv venv
+        ./venv/Scripts/activate
+        pip install -r requirements.txt
+        pip install pylint
+    - name: Verify linter status
+      run: py -m pylint *.py
     - name: Update version in make_release.py
       run: |
         sed -i "s/VERSION = .*$/VERSION = '${{ inputs.version }}'/" make_release.py

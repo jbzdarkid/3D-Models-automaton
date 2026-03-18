@@ -50,6 +50,9 @@ def check_for_updates():
     pass
 
 def is_relative_to(file, path):
+  """
+  Small helper to wrap the (not very helpful) python pathlib behavior
+  """
   try:
     file.relative_to(path)
     return True
@@ -92,17 +95,17 @@ def zip_repository():
 
 if __name__ == '__main__':
   print('Fetching latest release')
-  latest_release = make_request('GET', 'releases/latest')['name']
-  if latest_release.split('.') == VERSION.split('.'):
-    raise ValueError('Please bump the version in make_release.py, then push, then run this script, and finally generate a github release')
+  current_release = make_request('GET', 'releases/latest')['name']
+  if current_release.split('.') <= VERSION.split('.'):
+    raise ValueError(f'The version in make_release.py {VERSION} is not greater than the latest released version {current_release}')
 
   print('Zipping repository')
-  z = zip_repository()
-  with open('3D-Models-automation.zip', 'wb') as f:
-    f.write(z)
-  print('Done')
+  zip_buffer = zip_repository()
+  # with open('3D-Models-automation.zip', 'wb') as f:
+  #   f.write(zip_buffer)
+  # print('Done')
 
-  body = f'Please summarize the commits from https://github.com/jbzdarkid/3D-Models-automaton/compare/v{latest_release}...master'
+  body = f'Please summarize the commits from https://github.com/jbzdarkid/3D-Models-automaton/compare/v{current_release}...master'
   j = make_request('POST', 'releases', json={
     'tag_name': 'v' + VERSION,
     'name': VERSION,
@@ -112,4 +115,4 @@ if __name__ == '__main__':
 
   release_id = j['id']
   upload_url = f'https://uploads.github.com/repos/jbzdarkid/3D-Models-automaton/releases/{release_id}/assets?name=3D-models-automation.zip'
-  make_request('POST', upload_url, data=z, headers={'Content-Type': 'application/binary'})
+  make_request('POST', upload_url, data=zip_buffer, headers={'Content-Type': 'application/binary'})

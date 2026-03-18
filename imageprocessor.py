@@ -75,7 +75,7 @@ class ImageProcessor():
 
     # First, average the color of each pixel between the black and white frames.
     average_color = (white_arr + black_arr) / 2
-    
+
     # Then, compute the delta in luminescence between the black and white images.
     # We are computing the percieved luminescence using an inner product.
     # https://en.wikipedia.org/wiki/Luma_(video)#Use_of_relative_luminance

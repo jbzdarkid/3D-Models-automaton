@@ -120,7 +120,7 @@ if __name__ == '__main__':
     page = Page(wiki, 'File:' + title)
     with open(output_file, 'rb') as file:
       if not page.upload(file):
-        raise ValueError(f'Failed to upload {file}: {r}')
+        raise ValueError(f'Failed to upload {file}')
   except:
     import traceback
     traceback.print_exc()
