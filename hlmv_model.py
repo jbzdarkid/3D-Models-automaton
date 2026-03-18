@@ -1,8 +1,5 @@
 """
 Handles functionality related to HLMV, in a "model view controller" sense.
-Primarily responsible for retaining info about the current state of HLMV,
-and cross-communicating with mem.exe to change said state.
-Also handles the rotation math.
 """
 from math import sin, cos, radians
 from subprocess import Popen, PIPE
@@ -35,7 +32,9 @@ def mem(*args):
 
 class HLMVModel():
   """
-  See module docstring.
+  This class is responsible for retaining info about the current state of HLMV,
+  and cross-communicating with mem.exe to change said state.
+  It also handles the trigonometric rotation math.
   """
 
   def __init__(self, initial = None):
@@ -88,7 +87,7 @@ class HLMVModel():
       '558BEC81ECE8010000', # background
 
       # HLMV
-      '81CA00010000803D', # normals
+      '81C900010000803D', # normals
       '8B4328A80274', # position and rotation
 
       # HLMV++ x86
@@ -128,8 +127,9 @@ class HLMVModel():
       self.mem_offsets['rot'] = str(object_base + 0x08)
       self.mem_offsets['trans'] = str(object_base + 0x14)
       self.mem_offsets['skin'] = str(object_base + 0x24)
+      return
 
-    elif sigscans[9]:
+    if sigscans[9]:
       print('Detected HLMV++ x86')
 
       # Background color
@@ -146,8 +146,9 @@ class HLMVModel():
       object_base = unpack('<i', mem('read', '4', object_ref))[0] - base_addr
       self.mem_offsets['rot'] = str(object_base + 0x08)
       self.mem_offsets['trans'] = str(object_base + 0x14)
+      return
 
-    elif sigscans[13]:
+    if sigscans[13]:
       print('Detected HLMV++ x64')
 
       # Normal mapping
@@ -168,8 +169,9 @@ class HLMVModel():
       self.mem_offsets['rot'] = str(object_base + 0x10)
       self.mem_offsets['trans'] = str(object_base + 0x1C)
       self.mem_offsets['skin'] = str(object_base + 0x2C)
+      return
 
-    elif sigscans[20]:
+    if sigscans[20]:
       print('Detected Jed\'s HLMV')
 
       # Background color
@@ -179,10 +181,17 @@ class HLMVModel():
       trans = unpack('<i', sigscans[23][8:12])[0] - base_addr
       self.mem_offsets['trans'] = str(trans)
       self.mem_offsets['rot'] = str(trans - 12)
+      return
 
-    else:
-      print('\n'.join((f'{i} {scan}' for i, scan in enumerate(sigscans))))
-      raise ValueError('Unable to determine HLMV/HLMV++ version, please recompute sigscans')
+    print('Failed to determine HLMV/HLMV++ version')
+    print(f'Base address: {hex(base_addr)}')
+
+    for i in range(0, len(sigscans) - 1, 2):
+      print(i//2, end=' ')
+      print(pack('B' * len(sigscans[i]), *sigscans[i]).hex(), end=' ')
+      print(pack('B' * len(sigscans[i+1]), *sigscans[i+1]).hex(), end='\n')
+
+    raise ValueError('Unable to determine HLMV/HLMV++ version, please recompute sigscans')
 
 
   def set_background(self, value):
