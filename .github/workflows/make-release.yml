@@ -26,7 +26,7 @@ jobs:
         pip install -r requirements.txt
         pip install pylint
     - name: Verify linter status
-      run: py -m pylint *.py
+      run: ./venv/Scripts/pylint.exe *.py
     - name: Update version in make_release.py
       run: |
         sed -i "s/VERSION = .*$/VERSION = '${{ inputs.version }}'/" make_release.py
@@ -35,6 +35,6 @@ jobs:
         git commit -am "Updated version to ${{ inputs.version }}"
         git push
     - name: Run release script
-      run: python make_release.py
+      run: ./venv/Scripts/python.exe make_release.py
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
