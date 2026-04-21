@@ -138,7 +138,10 @@ if __name__ == '__main__':
 | height = %d
 | startframe = 16
 }}<noinclude>{{3D viewer}}[[Category:%s]]
-{{Externally linked}}''' % (
+{{Externally linked}}
+
+== License ==
+{{ScreenshotTF2}}''' % (
     url,
     datetime.utcnow().timestamp(),
     full_offset_map,
