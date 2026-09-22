@@ -95,7 +95,10 @@ def zip_repository():
   return buffer.getvalue()
 
 
-if __name__ == '__main__':
+def main():
+  """
+  The main function.
+  """
   print('Fetching latest release')
   current_release = make_request('GET', 'releases/latest')['name']
   current_parts = [int(p) for p in current_release.split('.')]
@@ -117,3 +120,7 @@ if __name__ == '__main__':
   release_id = j['id']
   upload_url = f'https://uploads.github.com/repos/jbzdarkid/3D-Models-automaton/releases/{release_id}/assets?name=3D-models-automation.zip'
   make_request('POST', upload_url, data=zip_buffer, headers={'Content-Type': 'application/binary'})
+
+
+if __name__ == '__main__':
+  main()
