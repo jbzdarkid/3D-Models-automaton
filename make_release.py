@@ -40,7 +40,9 @@ def check_for_updates():
   """
   try:
     latest_release = make_request('GET', 'releases/latest')['name']
-    if latest_release.split('.') > VERSION.split('.'):
+    latest_parts = [int(p) for p in latest_release.split('.')]
+    current_parts = [int(p) for p in VERSION.split('.')]
+    if latest_parts > current_parts:
       print('A new version of the automation scripts are available.')
       print(f'You are running {VERSION} but the latest release is {latest_release}.')
       print('Please download the latest version from https://github.com/jbzdarkid/3D-Models-automaton/releases/latest')
@@ -96,7 +98,9 @@ def zip_repository():
 if __name__ == '__main__':
   print('Fetching latest release')
   current_release = make_request('GET', 'releases/latest')['name']
-  if current_release.split('.') >= VERSION.split('.'):
+  current_parts = [int(p) for p in current_release.split('.')]
+  version_parts = [int(p) for p in VERSION.split('.')]
+  if current_parts >= version_parts:
     raise ValueError(f'The version in make_release.py {VERSION} is not greater than the latest released version {current_release}')
 
   print('Zipping repository')
