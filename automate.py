@@ -80,7 +80,7 @@ if __name__ == '__main__':
       model.rotate(x_rot, y_rot)
       sleep(0.02) # Wait for redraw
       black_images.append(grab())
-  model.rotate(0, 0) # Reset back to starting rotation for user
+  model.reset() # Reset back to starting rotation for user
 
   if sum(bounds_override) != 0:
     cropping = bounds_override
