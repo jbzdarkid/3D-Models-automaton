@@ -239,3 +239,11 @@ class HLMVModel():
       self.translation[1] + sin(y)*self.rot_offset + xy_shift,
       self.translation[2] - sin(x)*self.rot_offset
     ), self.mem_offsets['trans'])
+
+  def reset(self):
+    """
+    Reset the model to its initial rotation.
+    """
+
+    mem('write', pack('fff', *self.rotation), self.mem_offsets['rot'])
+    mem('write', pack('fff', *self.translation), self.mem_offsets['trans'])
